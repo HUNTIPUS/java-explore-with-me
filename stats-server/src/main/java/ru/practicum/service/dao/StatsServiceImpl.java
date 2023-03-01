@@ -74,6 +74,8 @@ public class StatsServiceImpl implements StatsService {
             }
         }
 
-        return statsDtoOutputList;
+        return statsDtoOutputList.stream()
+                .sorted(StatsDtoOutput::compareTo)
+                .collect(Collectors.toList());
     }
 }
