@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class StatsDtoOutput implements Comparable<StatsDtoOutput>{
+public class StatsDtoOutput implements Comparable<StatsDtoOutput> {
 
     private String app;
     private String uri;
