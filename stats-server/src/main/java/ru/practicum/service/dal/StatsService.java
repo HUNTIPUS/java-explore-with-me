@@ -9,6 +9,7 @@ import java.util.List;
 public interface StatsService {
 
     StatsDtoOutput hit(StatsDtoInput statsDtoInput);
+
     List<StatsDtoOutput> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
 
 }

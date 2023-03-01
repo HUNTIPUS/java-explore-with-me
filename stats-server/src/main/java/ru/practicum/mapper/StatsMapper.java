@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public class StatsMapper {
 
     public static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     public static Stats toStats(StatsDtoInput statsDtoInput) {
         Stats stats = new Stats();
         stats.setApp(statsDtoInput.getApp());
