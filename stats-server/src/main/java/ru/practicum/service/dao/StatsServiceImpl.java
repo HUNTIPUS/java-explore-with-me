@@ -55,7 +55,8 @@ public class StatsServiceImpl implements StatsService {
                     .addValue("uris", uris);
             if (!unique) {
                 sql = "select app, uri, count(ip) hits from stats " +
-                        "where time_stamp between :start and :end and uri in (:uris) group by app, uri order by hits desc";
+                        "where time_stamp between :start and :end and uri in (:uris) " +
+                        "group by app, uri order by hits desc";
             } else {
                 sql = "select app, uri, count(distinct ip) hits from stats " +
                         "where time_stamp between :start and :end and uri in (:uris) " +
