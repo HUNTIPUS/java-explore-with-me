@@ -1,23 +1,21 @@
 package ru.practicum.service.dao;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.StatsDtoInput;
 import ru.practicum.dto.StatsDtoOutput;
 import ru.practicum.mapper.StatsMapper;
-import ru.practicum.model.Stats;
 import ru.practicum.repository.StatsRepository;
 import ru.practicum.service.dal.StatsService;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.counting;
-import static java.util.stream.Collectors.groupingBy;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +23,7 @@ import static java.util.stream.Collectors.groupingBy;
 public class StatsServiceImpl implements StatsService {
 
     private final StatsRepository statsRepository;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Transactional
     @Override
@@ -34,48 +33,44 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public List<StatsDtoOutput> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        List<Stats> stats;
+        SqlParameterSource parameters;
         if (uris == null) {
+            String sql;
+            parameters = new MapSqlParameterSource()
+                    .addValue("start", start)
+                    .addValue("end", end);
             if (!unique) {
-                stats = statsRepository.getStatsWithoutUri(start, end);
+                sql = "select app, uri, count(ip) hits from stats " +
+                        "where time_stamp between :start and :end group by app, uri order by hits desc";
             } else {
-                stats = statsRepository.getStatsWithoutUri(start, end)
-                        .stream()
-                        .distinct()
-                        .collect(Collectors.toList());
+                sql = "select app, uri, count(distinct ip) hits from stats " +
+                        "where time_stamp between :start and :end group by app, uri order by hits desc";
             }
+            return jdbcTemplate.query(sql, parameters, StatsServiceImpl::makeToDto);
         } else {
+            String sql;
+            parameters = new MapSqlParameterSource()
+                    .addValue("start", start)
+                    .addValue("end", end)
+                    .addValue("uris", uris);
             if (!unique) {
-                stats = statsRepository.getStatsWithUri(start, end, uris);
+                sql = "select app, uri, count(ip) hits from stats " +
+                        "where time_stamp between :start and :end and uri in (:uris) group by app, uri order by hits desc";
             } else {
-                stats = statsRepository.getStatsWithUri(start, end, uris)
-                        .stream()
-                        .distinct()
-                        .collect(Collectors.toList());
+                sql = "select app, uri, count(distinct ip) hits from stats " +
+                        "where time_stamp between :start and :end and uri in (:uris) " +
+                        "group by app, uri order by hits desc";
             }
+            return jdbcTemplate.query(sql, parameters, StatsServiceImpl::makeToDto);
         }
-        return convertToDtoList(stats);
     }
 
-    private List<StatsDtoOutput> convertToDtoList(List<Stats> stats) {
-        Map<String, Map<String, Long>> appAndUri = stats
-                .stream()
-                .collect(groupingBy(Stats::getApp, groupingBy(Stats::getUri, counting())));
-        List<StatsDtoOutput> statsDtoOutputList = new ArrayList<>();
-
-        for (String app : appAndUri.keySet()) {
-            for (String uri : appAndUri.get(app).keySet()) {
-                statsDtoOutputList.add(StatsDtoOutput
-                        .builder()
-                        .app(app)
-                        .uri(uri)
-                        .hits(appAndUri.get(app).get(uri))
-                        .build());
-            }
-        }
-
-        return statsDtoOutputList.stream()
-                .sorted(StatsDtoOutput::compareTo)
-                .collect(Collectors.toList());
+    private static StatsDtoOutput makeToDto(ResultSet rs, int rowNum) throws SQLException {
+        return StatsDtoOutput
+                .builder()
+                .app(rs.getString("app"))
+                .uri(rs.getString("uri"))
+                .hits(rs.getLong("hits"))
+                .build();
     }
 }

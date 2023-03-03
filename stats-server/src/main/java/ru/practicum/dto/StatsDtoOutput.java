@@ -7,14 +7,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class StatsDtoOutput implements Comparable<StatsDtoOutput> {
+public class StatsDtoOutput {
 
     private String app;
     private String uri;
     private long hits;
-
-    @Override
-    public int compareTo(StatsDtoOutput o) {
-        return (int) (o.getHits() - this.getHits());
-    }
 }

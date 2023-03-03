@@ -35,10 +35,4 @@ public class StatsMapper {
                 .uri(stats.getUri())
                 .build();
     }
-
-    public static List<StatsDtoOutput> toListStatsDtoOutput(List<Stats> stats) {
-        return stats.stream()
-                .map(StatsMapper::toStatsDto)
-                .collect(Collectors.toList());
-    }
 }
