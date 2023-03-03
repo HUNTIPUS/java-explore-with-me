@@ -21,5 +21,5 @@ public class Stats {
     @Column(name = "time_stamp")
     private LocalDateTime timestamp;
     @Transient
-    private Long hits;
+    private Long hits = 0L;
 }
