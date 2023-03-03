@@ -10,6 +10,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StatsMapper {
@@ -31,6 +33,14 @@ public class StatsMapper {
                 .builder()
                 .app(stats.getApp())
                 .uri(stats.getUri())
+                .hits(stats.getHits())
                 .build();
+    }
+
+    public static List<StatsDtoOutput> toStatsDtoList(List<Stats> statsStorages) {
+        return statsStorages
+                .stream()
+                .map(StatsMapper::toStatsDto)
+                .collect(Collectors.toList());
     }
 }

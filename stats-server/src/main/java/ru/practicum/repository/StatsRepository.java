@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.model.Stats;
 
 @Repository
-public interface StatsRepository extends JpaRepository<Stats, Long> {
+public interface StatsRepository extends JpaRepository<Stats, Long>, CustomDao {
 }

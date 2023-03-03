@@ -20,4 +20,6 @@ public class Stats {
     private String ip;
     @Column(name = "time_stamp")
     private LocalDateTime timestamp;
+    @Transient
+    private Long hits;
 }
