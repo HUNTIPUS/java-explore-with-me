@@ -1,4 +1,4 @@
-package ru.practicum.model;
+package ru.practicum.admin_access.compilations.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -6,23 +6,17 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "stats")
+@Table(name = "compilations")
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Stats {
+public class Compilation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
-    String app;
-    String uri;
-    String ip;
-    @Column(name = "time_stamp")
-    LocalDateTime timestamp;
-    @Transient
-    Long hits = 0L;
+    Long id;
+    String title;
+    Boolean pinned;
 }
