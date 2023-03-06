@@ -1,4 +1,4 @@
-package ru.practicum.admin_access.events.model;
+package ru.practicum.private_access.events.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -6,8 +6,9 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.admin_access.categories.model.Category;
 import ru.practicum.admin_access.compilations.model.Compilation;
-import ru.practicum.admin_access.events.location.model.Location;
+import ru.practicum.private_access.events.location.model.Location;
 import ru.practicum.admin_access.users.model.User;
+import ru.practicum.private_access.events.state.State;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -49,4 +50,8 @@ public class Event {
             @JoinColumn(name = "lon")
     })
     Location location;
+    @Enumerated(EnumType.STRING)
+    State state;
+    @Column(name = "published_on")
+    LocalDateTime publishedOn;
 }

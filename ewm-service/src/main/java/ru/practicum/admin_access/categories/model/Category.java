@@ -1,9 +1,7 @@
 package ru.practicum.admin_access.categories.model;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 

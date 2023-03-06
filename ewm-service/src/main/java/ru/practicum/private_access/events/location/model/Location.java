@@ -1,4 +1,4 @@
-package ru.practicum.admin_access.events.location.model;
+package ru.practicum.private_access.events.location.model;
 
 import lombok.Getter;
 import lombok.Setter;

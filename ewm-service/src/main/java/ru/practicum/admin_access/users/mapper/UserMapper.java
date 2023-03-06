@@ -1,11 +1,15 @@
 package ru.practicum.admin_access.users.mapper;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.admin_access.users.dto.UserDto;
+import ru.practicum.admin_access.users.dto.UserShortDto;
 import ru.practicum.admin_access.users.model.User;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserMapper {
 
     public static User toUser(UserDto userDto) {
@@ -28,5 +32,13 @@ public class UserMapper {
         return users.stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
+    }
+
+    public static UserShortDto toUserShortDto(User user) {
+        return UserShortDto
+                .builder()
+                .id(user.getId())
+                .name(user.getName())
+                .build();
     }
 }

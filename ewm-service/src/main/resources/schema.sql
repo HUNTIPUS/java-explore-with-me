@@ -8,21 +8,24 @@ drop table if exists requests cascade;
 create table if not exists users
 (
     id bigint generated always as identity primary key,
-    email varchar(100) unique,
-    name varchar(100)
+    email varchar(100),
+    name varchar(100),
+    constraint uq_email unique (email)
 );
 
 create table if not exists categories
 (
     id bigint generated always as identity primary key,
-    name varchar(100) unique
+    name varchar(100),
+    constraint uq_name unique (name)
 );
 
 create table if not exists compilations
 (
     id bigint generated always as identity primary key,
     title varchar(120),
-    pinned boolean
+    pinned boolean,
+    constraint uq_title unique (title)
 );
 
 create table if not exists location
@@ -48,6 +51,8 @@ create table if not exists events
     participant_limit int,
     paid boolean,
     request_moderation boolean,
+    state varchar(20),
+    published_on timestamp,
     constraint fk_events_to_users foreign key (id_user) references users (id),
     constraint fk_events_to_category foreign key (id_category) references categories (id),
     constraint fk_events_to_compilation foreign key (id_compilation) references compilations (id),
@@ -56,9 +61,11 @@ create table if not exists events
 
 create table if not exists requests
 (
+    id bigint generated always as identity primary key,
     id_user bigint,
     id_event bigint,
     status varchar(20),
+    created timestamp,
     constraint fk_requests_to_users foreign key (id_user) references users (id),
     constraint fk_requests_to_events foreign key (id_event) references events (id)
 );

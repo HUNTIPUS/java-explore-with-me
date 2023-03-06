@@ -5,10 +5,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.exceptions.exceptoin.ObjectExcistenceException;
+import ru.practicum.admin_access.users.dto.UserDto;
+import ru.practicum.admin_access.users.mapper.UserMapper;
 import ru.practicum.admin_access.users.model.User;
 import ru.practicum.admin_access.users.repository.UserRepository;
 import ru.practicum.admin_access.users.service.dal.UserService;
+import ru.practicum.exceptions.exceptoin.ObjectExistenceException;
 
 import java.util.List;
 
@@ -21,25 +23,30 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User create(User user) {
-        return repository.save(user);
+    public UserDto create(UserDto userDto) {
+        return UserMapper.toUserDto(repository.save(UserMapper.toUser(userDto)));
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
-        repository.findById(id)
-                .orElseThrow(() -> new ObjectExcistenceException(String.format("User with id=%s was not found", id)));
+        getById(id);
         repository.deleteById(id);
     }
 
     @Override
-    public List<User> get(List<Long> ids, Integer from, Integer size) {
-        if (ids.isEmpty()) {
-            return repository.findAll(PageRequest.of(from > 0 ? from / size : 0,
-                    size, Sort.unsorted())).toList();
+    public List<UserDto> get(List<Long> ids, Integer from, Integer size) {
+        if (ids == null) {
+            return UserMapper.toUserDtoList(repository.findAll(PageRequest.of(from > 0 ? from / size : 0,
+                    size, Sort.unsorted())).toList());
         } else {
-            return repository.findAllById(ids);
+            return UserMapper.toUserDtoList(repository.findAllById(ids));
         }
+    }
+
+    @Override
+    public User getById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ObjectExistenceException(String.format("User with id=%s was not found", id)));
     }
 }

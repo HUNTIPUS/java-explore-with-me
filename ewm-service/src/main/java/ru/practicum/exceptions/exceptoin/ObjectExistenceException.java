@@ -1,7 +1,7 @@
 package ru.practicum.exceptions.exceptoin;
 
-public class ObjectExcistenceException extends RuntimeException{
-    public ObjectExcistenceException(final String message) {
+public class ObjectExistenceException extends RuntimeException {
+    public ObjectExistenceException(final String message) {
         super(message);
     }
 

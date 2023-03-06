@@ -2,39 +2,43 @@ package ru.practicum.admin_access.users.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.admin_access.users.dto.UserDto;
 import ru.practicum.admin_access.users.mapper.UserMapper;
 import ru.practicum.admin_access.users.service.dal.UserService;
+import ru.practicum.valid.Create;
 
-import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/admin/users")
+@Validated
 public class UserController {
 
     private final UserService service;
 
     @PostMapping
-    public UserDto create(@RequestBody @Valid UserDto userDto) {
+    public UserDto create(@RequestBody @Validated(Create.class) UserDto userDto) {
         log.info("create user");
-        return UserMapper.toUserDto(service.create(UserMapper.toUser(userDto)));
+        return service.create(userDto);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable @Positive Long id) {
         service.delete(id);
-        log.info("delete user with id = {}", id);
+        log.info("delete user with id={}", id);
     }
 
     @GetMapping
     public List<UserDto> getAll(@RequestParam(required = false) List<Long> ids,
-                                @RequestParam(defaultValue = "0") Integer from,
-                                @RequestParam(defaultValue = "20") Integer size) {
+                                @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                @RequestParam(defaultValue = "20") @Positive Integer size) {
         log.info("viewing users");
-        return UserMapper.toUserDtoList(service.get(ids, from, size));
+        return service.get(ids, from, size);
     }
 }
