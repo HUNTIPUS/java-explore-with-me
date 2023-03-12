@@ -32,7 +32,8 @@ public interface EventService {
     EventDtoOutput getByIdForDto(Long id, HttpServletRequest request);
 
     List<EventShortDtoOutput> getAllByParamForPublic(String text, List<Long> categories, Boolean paid,
-                                                LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable,
-                                                Sort sort, Integer from, Integer size, HttpServletRequest request);
+                                                     LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                                     Boolean onlyAvailable, Sort sort, Integer from, Integer size,
+                                                     HttpServletRequest request);
 
 }

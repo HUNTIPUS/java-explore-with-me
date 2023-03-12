@@ -1,6 +1,5 @@
 package ru.practicum.private_access.requests.repository;
 
-import ru.practicum.private_access.requests.Status.Status;
 import ru.practicum.private_access.requests.model.Request;
 
 import java.util.List;

@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.StatsDtoInput;
 import ru.practicum.dto.StatsDtoOutput;
 import ru.practicum.mapper.StatsMapper;
-import ru.practicum.model.Stats;
 import ru.practicum.repository.StatsRepository;
 import ru.practicum.service.dal.StatsService;
 

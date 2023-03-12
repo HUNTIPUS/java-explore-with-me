@@ -3,7 +3,6 @@ package ru.practicum.private_access.events.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import ru.practicum.private_access.events.location.dto.LocationDto;
 import ru.practicum.private_access.events.state.State;
 import ru.practicum.valid.Create;

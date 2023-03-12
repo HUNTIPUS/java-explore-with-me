@@ -2,7 +2,6 @@ package ru.practicum.service.dal;
 
 import ru.practicum.dto.StatsDtoInput;
 import ru.practicum.dto.StatsDtoOutput;
-import ru.practicum.model.Stats;
 
 import java.time.LocalDateTime;
 import java.util.List;
