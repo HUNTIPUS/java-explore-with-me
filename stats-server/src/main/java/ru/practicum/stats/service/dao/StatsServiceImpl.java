@@ -1,13 +1,13 @@
-package ru.practicum.service.dao;
+package ru.practicum.stats.service.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.StatsDtoInput;
-import ru.practicum.dto.StatsDtoOutput;
-import ru.practicum.mapper.StatsMapper;
-import ru.practicum.repository.StatsRepository;
-import ru.practicum.service.dal.StatsService;
+import ru.practicum.stats.dto.StatsDtoInput;
+import ru.practicum.stats.dto.StatsDtoOutput;
+import ru.practicum.stats.mapper.StatsMapper;
+import ru.practicum.stats.repository.StatsRepository;
+import ru.practicum.stats.service.dal.StatsService;
 
 import java.time.LocalDateTime;
 import java.util.List;

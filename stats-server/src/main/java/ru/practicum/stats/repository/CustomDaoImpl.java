@@ -1,11 +1,11 @@
-package ru.practicum.repository;
+package ru.practicum.stats.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
-import ru.practicum.model.Stats;
+import ru.practicum.stats.model.Stats;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

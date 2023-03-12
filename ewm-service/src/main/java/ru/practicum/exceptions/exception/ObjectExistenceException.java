@@ -1,4 +1,4 @@
-package ru.practicum.exceptions.exceptoin;
+package ru.practicum.exceptions.exception;
 
 public class ObjectExistenceException extends RuntimeException {
     public ObjectExistenceException(final String message) {

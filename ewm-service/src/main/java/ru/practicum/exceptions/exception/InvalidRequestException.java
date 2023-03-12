@@ -1,4 +1,4 @@
-package ru.practicum.exceptions.exceptoin;
+package ru.practicum.exceptions.exception;
 
 public class InvalidRequestException extends RuntimeException {
     public InvalidRequestException(final String message) {

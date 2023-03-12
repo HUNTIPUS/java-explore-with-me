@@ -9,7 +9,7 @@ import ru.practicum.admin_access.users.mapper.UserMapper;
 import ru.practicum.admin_access.users.model.User;
 import ru.practicum.admin_access.users.repository.UserRepository;
 import ru.practicum.admin_access.users.service.dal.UserService;
-import ru.practicum.exceptions.exceptoin.ObjectExistenceException;
+import ru.practicum.exceptions.exception.ObjectExistenceException;
 
 import java.util.List;
 

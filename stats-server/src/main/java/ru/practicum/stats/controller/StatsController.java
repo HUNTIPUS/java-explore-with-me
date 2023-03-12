@@ -1,11 +1,11 @@
-package ru.practicum.controller;
+package ru.practicum.stats.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.StatsDtoInput;
-import ru.practicum.dto.StatsDtoOutput;
-import ru.practicum.service.dal.StatsService;
+import ru.practicum.stats.dto.StatsDtoInput;
+import ru.practicum.stats.dto.StatsDtoOutput;
+import ru.practicum.stats.service.dal.StatsService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;

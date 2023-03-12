@@ -1,15 +1,14 @@
 package ru.practicum.exceptions.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.exceptions.exceptoin.ConstraintForeignKeyException;
-import ru.practicum.exceptions.exceptoin.InvalidRequestException;
-import ru.practicum.exceptions.exceptoin.ObjectExistenceException;
+import ru.practicum.exceptions.exception.ConstraintForeignKeyException;
+import ru.practicum.exceptions.exception.InvalidRequestException;
+import ru.practicum.exceptions.exception.ObjectExistenceException;
 import ru.practicum.exceptions.response.ErrorResponse;
 
 import javax.xml.bind.ValidationException;

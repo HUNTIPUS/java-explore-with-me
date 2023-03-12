@@ -1,4 +1,4 @@
-package ru.practicum.exceptions.exceptoin;
+package ru.practicum.exceptions.exception;
 
 public class ConstraintForeignKeyException extends RuntimeException {
     public ConstraintForeignKeyException(final String message) {

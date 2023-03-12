@@ -1,10 +1,10 @@
-package ru.practicum.mapper;
+package ru.practicum.stats.mapper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.practicum.dto.StatsDtoInput;
-import ru.practicum.dto.StatsDtoOutput;
-import ru.practicum.model.Stats;
+import ru.practicum.stats.dto.StatsDtoInput;
+import ru.practicum.stats.dto.StatsDtoOutput;
+import ru.practicum.stats.model.Stats;
 
 import java.util.List;
 import java.util.stream.Collectors;

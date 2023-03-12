@@ -2,7 +2,6 @@ package ru.practicum.admin_access.categories.service.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.objenesis.ObjenesisException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.admin_access.categories.dto.CategoryDto;
@@ -10,8 +9,8 @@ import ru.practicum.admin_access.categories.mapper.CategoryMapper;
 import ru.practicum.admin_access.categories.model.Category;
 import ru.practicum.admin_access.categories.repository.CategoryRepository;
 import ru.practicum.admin_access.categories.service.dal.CategoryService;
-import ru.practicum.exceptions.exceptoin.ConstraintForeignKeyException;
-import ru.practicum.exceptions.exceptoin.ObjectExistenceException;
+import ru.practicum.exceptions.exception.ConstraintForeignKeyException;
+import ru.practicum.exceptions.exception.ObjectExistenceException;
 import ru.practicum.private_access.events.repository.EventRepository;
 
 import java.util.List;
