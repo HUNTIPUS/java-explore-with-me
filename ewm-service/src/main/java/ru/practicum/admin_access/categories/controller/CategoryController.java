@@ -5,13 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.admin_access.categories.dto.CategoryDto;
-import ru.practicum.admin_access.categories.mapper.CategoryMapper;
 import ru.practicum.admin_access.categories.service.dal.CategoryService;
 import ru.practicum.valid.Create;
 import ru.practicum.valid.Update;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
 

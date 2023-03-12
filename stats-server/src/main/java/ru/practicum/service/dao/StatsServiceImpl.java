@@ -3,6 +3,9 @@ package ru.practicum.service.dao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.StatsDtoInput;
+import ru.practicum.dto.StatsDtoOutput;
+import ru.practicum.mapper.StatsMapper;
 import ru.practicum.model.Stats;
 import ru.practicum.repository.StatsRepository;
 import ru.practicum.service.dal.StatsService;
@@ -19,12 +22,12 @@ public class StatsServiceImpl implements StatsService {
 
     @Transactional
     @Override
-    public Stats hit(Stats stats) {
-        return statsRepository.save(stats);
+    public StatsDtoOutput hit(StatsDtoInput stats) {
+        return StatsMapper.toStatsDto(statsRepository.save(StatsMapper.toStats(stats)));
     }
 
     @Override
-    public List<Stats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        return statsRepository.getStats(start, end, uris, unique);
+    public List<StatsDtoOutput> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        return StatsMapper.toStatsDtoList(statsRepository.getStats(start, end, uris, unique));
     }
 }

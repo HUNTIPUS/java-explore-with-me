@@ -21,7 +21,7 @@ public class CustomDaoImpl implements CustomDao {
     public List<Stats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         SqlParameterSource parameters;
         List<Stats> statsStorage;
-        if (uris == null) {
+        if (uris == null || uris.isEmpty()) {
             String sql;
             parameters = new MapSqlParameterSource()
                     .addValue("start", start)

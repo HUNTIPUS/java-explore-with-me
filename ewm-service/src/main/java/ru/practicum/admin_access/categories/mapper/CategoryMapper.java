@@ -5,6 +5,9 @@ import lombok.NoArgsConstructor;
 import ru.practicum.admin_access.categories.dto.CategoryDto;
 import ru.practicum.admin_access.categories.model.Category;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CategoryMapper {
 
@@ -20,5 +23,12 @@ public class CategoryMapper {
                 .id(category.getId())
                 .name(category.getName())
                 .build();
+    }
+
+    public static List<CategoryDto> toCategoryDtoList(List<Category> categories) {
+        return categories
+                .stream()
+                .map(CategoryMapper::toCategoryDto)
+                .collect(Collectors.toList());
     }
 }

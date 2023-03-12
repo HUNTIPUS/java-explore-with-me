@@ -4,7 +4,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.admin_access.categories.dto.CategoryDto;
 import ru.practicum.admin_access.users.dto.UserShortDto;
-import ru.practicum.private_access.events.location.dto.LocationDto;
 
 import java.time.LocalDateTime;
 

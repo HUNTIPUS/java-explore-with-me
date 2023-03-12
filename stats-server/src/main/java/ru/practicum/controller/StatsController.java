@@ -5,7 +5,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.StatsDtoInput;
 import ru.practicum.dto.StatsDtoOutput;
-import ru.practicum.mapper.StatsMapper;
 import ru.practicum.service.dal.StatsService;
 
 import javax.validation.Valid;
@@ -22,7 +21,7 @@ public class StatsController {
 
     @PostMapping("/hit")
     public StatsDtoOutput hit(@RequestBody @Valid StatsDtoInput statsDtoInput) {
-        return StatsMapper.toStatsDto(service.hit(StatsMapper.toStats(statsDtoInput)));
+        return service.hit(statsDtoInput);
     }
 
     @GetMapping("/stats")
@@ -30,6 +29,6 @@ public class StatsController {
                                          @RequestParam @DateTimeFormat(pattern = FORMAT) LocalDateTime end,
                                          @RequestParam(required = false) List<String> uris,
                                          @RequestParam(defaultValue = "false") Boolean unique) {
-        return StatsMapper.toStatsDtoList(service.getStats(start, end, uris, unique));
+        return service.getStats(start, end, uris, unique);
     }
 }

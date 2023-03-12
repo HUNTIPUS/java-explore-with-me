@@ -2,7 +2,6 @@ package ru.practicum.admin_access.users.service.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.admin_access.users.dto.UserDto;
@@ -38,7 +37,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> get(List<Long> ids, Integer from, Integer size) {
         if (ids == null) {
             return UserMapper.toUserDtoList(repository.findAll(PageRequest.of(from > 0 ? from / size : 0,
-                    size, Sort.unsorted())).toList());
+                    size)).toList());
         } else {
             return UserMapper.toUserDtoList(repository.findAllById(ids));
         }
@@ -48,5 +47,10 @@ public class UserServiceImpl implements UserService {
     public User getById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ObjectExistenceException(String.format("User with id=%s was not found", id)));
+    }
+
+    @Override
+    public List<User> getAll() {
+        return repository.findAll();
     }
 }

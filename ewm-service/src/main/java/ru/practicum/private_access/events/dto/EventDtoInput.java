@@ -1,7 +1,9 @@
 package ru.practicum.private_access.events.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import ru.practicum.private_access.events.location.dto.LocationDto;
 import ru.practicum.private_access.events.state.State;
 import ru.practicum.valid.Create;
@@ -32,12 +34,11 @@ public class EventDtoInput {
     LocalDateTime createdOn = LocalDateTime.now().withNano(0);
     @NotNull(groups = {Create.class, Update.class})
     @Future(groups = {Create.class, Update.class})
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
     @PositiveOrZero(groups = {Create.class, Update.class})
-    Integer participantLimit;
-    @NotNull(groups = {Create.class, Update.class})
-    Boolean paid;
-    @NotNull(groups = {Create.class, Update.class})
-    Boolean requestModeration;
+    Integer participantLimit = 0;
+    Boolean paid = false;
+    Boolean requestModeration = true;
     State state = State.PENDING;
 }
