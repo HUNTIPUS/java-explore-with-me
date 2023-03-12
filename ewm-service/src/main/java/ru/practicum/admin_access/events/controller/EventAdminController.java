@@ -38,9 +38,9 @@ public class EventAdminController {
                                               @RequestParam(required = false) List<State> states,
                                               @RequestParam(required = false) List<Long> categories,
                                               @RequestParam(required = false) @DateTimeFormat(pattern = FORMAT)
-                                                  LocalDateTime rangeStart,
+                                              LocalDateTime rangeStart,
                                               @RequestParam(required = false) @DateTimeFormat(pattern = FORMAT)
-                                                  LocalDateTime rangeEnd,
+                                              LocalDateTime rangeEnd,
                                               @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                               @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("events by user={}, states={}, categories={}, rangeStart={}, rangeEnd={}, from={}, size={}",
