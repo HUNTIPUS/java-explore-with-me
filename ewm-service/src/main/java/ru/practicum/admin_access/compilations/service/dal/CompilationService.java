@@ -2,7 +2,6 @@ package ru.practicum.admin_access.compilations.service.dal;
 
 import ru.practicum.admin_access.compilations.dto.CompilationDtoInput;
 import ru.practicum.admin_access.compilations.dto.CompilationDtoOutput;
-import ru.practicum.admin_access.compilations.model.Compilation;
 
 import java.util.List;
 
