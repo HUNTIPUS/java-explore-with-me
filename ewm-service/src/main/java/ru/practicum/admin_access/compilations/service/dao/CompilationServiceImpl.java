@@ -35,7 +35,7 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = compilationRepository
                 .save(CompilationMapper.toCompilation(compilationDtoInput));
         CompilationDtoOutput compilationDtoOutput = CompilationMapper.toCompilationDtoOutput(compilation);
-        if (!compilationDtoInput.getEvents().isEmpty()) {
+        if (compilationDtoInput.getEvents() != null && !compilationDtoInput.getEvents().isEmpty()) {
             List<Event> events = eventRepository.findAllById(compilationDtoInput.getEvents());
             for (Event event : events) {
                 event.setCompilation(compilation);
