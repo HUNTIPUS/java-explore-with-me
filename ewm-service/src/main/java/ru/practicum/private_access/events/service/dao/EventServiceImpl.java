@@ -75,6 +75,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDtoOutput update(Long userId, Long eventId, EventDtoInput eventDtoInput) {
         Event event = getById(eventId);
+        User user = userService.getById(userId);
         if (eventDtoInput.getStateAction() != null
                 && eventDtoInput.getStateAction().equals(StateAction.SEND_TO_REVIEW.name())) {
             event.setState(State.PENDING);
@@ -82,10 +83,13 @@ public class EventServiceImpl implements EventService {
         if (eventDtoInput.getLocation() != null) {
             saveLocation(eventDtoInput.getLocation());
         }
-        userService.getById(userId);
+        if (eventDtoInput.getCategory() != null) {
+            return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEvent(eventDtoInput,
+                    user,
+                    categoryService.getById(eventDtoInput.getCategory()))));
+        }
         return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEvent(eventDtoInput,
-                userService.getById(userId),
-                categoryService.getById(eventDtoInput.getCategory()))));
+                user, null)));
     }
 
     @Override
@@ -148,7 +152,7 @@ public class EventServiceImpl implements EventService {
             statesNew.add(State.PENDING);
             statesNew.add(State.CANCELED);
         } else {
-            for (String state: states) {
+            for (String state : states) {
                 statesNew.add(State.valueOf(state));
             }
         }
@@ -313,7 +317,8 @@ public class EventServiceImpl implements EventService {
             event.setCompilation(newEvent.getCompilation());
         }
         if (newEvent.getState() != null) {
-            if (event.getState().equals(newEvent.getState())) {
+            if (event.getState().equals(State.PUBLISHED) && newEvent.getState().equals(State.PUBLISHED)
+                    || event.getState().equals(State.CANCELED) && newEvent.getState().equals(State.CANCELED)) {
                 throw new DuplicateException(String.format("Status: %s already in use event with id=%s",
                         newEvent.getState(), event.getId()));
             }

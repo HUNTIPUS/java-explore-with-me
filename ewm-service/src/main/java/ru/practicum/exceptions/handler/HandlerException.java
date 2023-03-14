@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.exceptions.exception.*;
 import ru.practicum.exceptions.response.ErrorResponse;
 
+import javax.validation.ConstraintViolationException;
 import javax.xml.bind.ValidationException;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -47,7 +48,7 @@ public class HandlerException {
         log.info("error code: 400");
         return new ResponseEntity<>(
                 new ErrorResponse(HttpStatus.BAD_REQUEST,
-                        "Integrity constraint has been violated.",
+                        "Incorrectly made request.",
                         ex.getMessage(),
                         LocalDateTime.now().withNano(0)),
                 HttpStatus.BAD_REQUEST);
@@ -110,6 +111,17 @@ public class HandlerException {
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> exc(Throwable ex) {
+        log.info("error code: 409");
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.CONFLICT,
+                        "Integrity constraint has been violated.",
+                        ex.getMessage(),
+                        LocalDateTime.now().withNano(0)),
+                HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> exc(ConstraintViolationException ex) {
         log.info("error code: 409");
         return new ResponseEntity<>(
                 new ErrorResponse(HttpStatus.CONFLICT,
