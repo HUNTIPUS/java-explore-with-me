@@ -22,7 +22,6 @@ public class EventDtoForAdminInput {
     String annotation;
     String title;
     String description;
-    @Future(groups = {Update.class})
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
     @PositiveOrZero(groups = {Update.class})

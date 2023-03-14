@@ -86,13 +86,13 @@ public class EventServiceImpl implements EventService {
         if (eventDtoInput.getLocation() != null) {
             saveLocation(eventDtoInput.getLocation());
         }
-        if (eventDtoInput.getCategory() != null) {
+        if (eventDtoInput.getCategory() == null) {
             return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEvent(eventDtoInput,
-                    user,
-                    categoryService.getById(eventDtoInput.getCategory()))));
+                    user, null)));
         }
         return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEvent(eventDtoInput,
-                user, null)));
+                user,
+                categoryService.getById(eventDtoInput.getCategory()))));
     }
 
     @Override
@@ -131,6 +131,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDtoOutput updateByAdmin(Long id, EventDtoForAdminInput eventDto) {
         Event event = getById(id);
+        if (!eventDto.getEventDate().isAfter(LocalDateTime.now())) {
+            throw new TimeException("Event date not in the future.");
+        }
         if (!event.getState().equals(State.PENDING)) {
             throw new StatusException(String.format("event with id=%s has status %s", id, event.getState()));
         }

@@ -35,7 +35,9 @@ public class EventMapper {
             event.setLocation(LocationMapper.toLocation(eventDtoInput.getLocation()));
         }
         event.setUser(user);
-        event.setCategory(category);
+        if (category != null) {
+            event.setCategory(category);
+        }
         event.setState(eventDtoInput.getState());
         return event;
     }
@@ -73,6 +75,8 @@ public class EventMapper {
             event.setState(State.PUBLISHED);
             event.setPublishedOn(eventDto.getPublishedOn());
         } else if (StateAction.valueOf(eventDto.getStateAction()).equals(StateAction.CANCEL_REVIEW)) {
+            event.setState(State.CANCELED);
+        } else if (StateAction.valueOf(eventDto.getStateAction()).equals(StateAction.REJECT_EVENT)) {
             event.setState(State.CANCELED);
         }
         return event;
