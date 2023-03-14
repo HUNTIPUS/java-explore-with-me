@@ -10,7 +10,6 @@ import ru.practicum.private_access.events.dto.EventDtoOutput;
 import ru.practicum.private_access.events.dto.EventShortDtoOutput;
 import ru.practicum.private_access.events.service.dal.EventService;
 import ru.practicum.valid.Create;
-import ru.practicum.valid.Update;
 
 import javax.validation.constraints.Positive;
 import java.util.List;

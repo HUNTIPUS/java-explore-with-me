@@ -22,10 +22,10 @@ public interface RequestRepository extends JpaRepository<Request, Long>, Request
             "where e.user.id = :userId and r.event.id = :eventId")
     List<Request> getAllRequestsByEvent(Long userId, Long eventId);
 
-
     @Query("select r from Request r join Event e on e.id = r.event.id " +
             "where e.id = :eventId and e.user.id = :userId and r.id in :ids")
     List<Request> getSelectedRequest(Long userId, Long eventId, List<Long> ids);
+
     @Query("select r from Request r join Event e on e.id = r.event.id " +
             "where e.id = :eventId and e.user.id = :userId and r.id not in :ids")
     List<Request> getRemainingRequest(Long userId, Long eventId, List<Long> ids);
