@@ -27,7 +27,7 @@ public class PrivateAccessRequestController {
     @PostMapping("/requests")
     @ResponseStatus(HttpStatus.CREATED)
     public RequestDtoOutput create(@PathVariable @Positive Long userId,
-                                   @RequestParam @NotNull @Positive Long eventId) {
+                                   @RequestParam @Positive Long eventId) {
         log.info("create request by user with id={}", userId);
         return service.create(userId, eventId);
     }

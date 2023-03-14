@@ -33,9 +33,9 @@ public class EventDtoInput {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
     @PositiveOrZero(groups = {Create.class})
-    Integer participantLimit = 0;
+    Integer participantLimit;
     Boolean paid;
-    Boolean requestModeration = true;
+    Boolean requestModeration;
     State state = State.PENDING;
     String stateAction;
 }
