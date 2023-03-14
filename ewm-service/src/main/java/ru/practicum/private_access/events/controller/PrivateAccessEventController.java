@@ -11,6 +11,8 @@ import ru.practicum.private_access.events.dto.EventShortDtoOutput;
 import ru.practicum.private_access.events.service.dal.EventService;
 import ru.practicum.valid.Create;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
@@ -26,7 +28,7 @@ public class PrivateAccessEventController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventDtoOutput create(@RequestBody @Validated(Create.class) EventDtoInput eventDtoInput,
-                                 @PathVariable @Positive Long userId) {
+                                 @PathVariable @Valid @NotNull @Positive Long userId) {
         log.info("create event");
         return service.create(userId, eventDtoInput);
     }

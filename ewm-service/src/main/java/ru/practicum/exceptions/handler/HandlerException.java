@@ -121,7 +121,7 @@ public class HandlerException {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> exc(ConstraintViolationException ex) {
+    public ResponseEntity<ErrorResponse> exc(Throwable ex) {
         log.info("error code: 409");
         return new ResponseEntity<>(
                 new ErrorResponse(HttpStatus.CONFLICT,
