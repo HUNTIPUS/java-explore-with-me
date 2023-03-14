@@ -11,7 +11,6 @@ import ru.practicum.private_access.requests.dto.RequestsForStatusDtoOutput;
 import ru.practicum.private_access.requests.service.dal.RequestService;
 import ru.practicum.valid.Update;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
