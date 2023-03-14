@@ -37,4 +37,5 @@ public class EventDtoInput {
     Boolean paid = false;
     Boolean requestModeration = true;
     State state = State.PENDING;
+    String stateAction;
 }

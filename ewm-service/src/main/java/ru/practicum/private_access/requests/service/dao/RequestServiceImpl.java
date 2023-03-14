@@ -54,7 +54,7 @@ public class RequestServiceImpl implements RequestService {
             }
             List<Event> events = new ArrayList<>();
             events.add(event);
-            List<Request> requests = repository.getConfirmedRequests(events);
+            List<Request> requests = repository.getPendingRequests(events);
             if (requests.isEmpty() || requests.size() < event.getParticipantLimit()) {
                 Request request = new Request();
                 request.setUser(user);

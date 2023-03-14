@@ -9,11 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.admin_access.categories.model.Category;
 import ru.practicum.admin_access.categories.service.dal.CategoryService;
+import ru.practicum.admin_access.events.state_action.StateAction;
 import ru.practicum.admin_access.users.model.User;
 import ru.practicum.admin_access.users.service.dal.UserService;
 import ru.practicum.dto.StatsDtoInput;
 import ru.practicum.dto.StatsDtoOutput;
 import ru.practicum.exceptions.exception.DuplicateException;
+import ru.practicum.exceptions.exception.StatusException;
 import ru.practicum.exceptions.exception.TimeException;
 import ru.practicum.private_access.events.dto.EventDtoForAdminInput;
 import ru.practicum.private_access.events.dto.EventDtoInput;
@@ -72,9 +74,16 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventDtoOutput update(Long userId, Long eventId, EventDtoInput eventDtoInput) {
-        saveLocation(eventDtoInput.getLocation());
+        Event event = getById(eventId);
+        if (eventDtoInput.getStateAction() != null
+                && eventDtoInput.getStateAction().equals(StateAction.SEND_TO_REVIEW.name())) {
+            event.setState(State.PENDING);
+        }
+        if (eventDtoInput.getLocation() != null) {
+            saveLocation(eventDtoInput.getLocation());
+        }
         userService.getById(userId);
-        return EventMapper.toEventDtoOutput(updateEvent(getById(eventId), EventMapper.toEvent(eventDtoInput,
+        return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEvent(eventDtoInput,
                 userService.getById(userId),
                 categoryService.getById(eventDtoInput.getCategory()))));
     }
@@ -114,8 +123,11 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventDtoOutput updateByAdmin(Long id, EventDtoForAdminInput eventDto) {
+        Event event = getById(id);
+        if (!event.getState().equals(State.PENDING)) {
+            throw new StatusException(String.format("event with id=%s has status %s", id, event.getState()));
+        }
         if (eventDto.getCategory() == null) {
-            Event event = getById(id);
             return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEventAdmin(eventDto,
                     null)));
         }
@@ -300,12 +312,14 @@ public class EventServiceImpl implements EventService {
         if (newEvent.getCompilation() != null) {
             event.setCompilation(newEvent.getCompilation());
         }
-        if (newEvent.getPublishedOn() != null) {
+        if (newEvent.getState() != null) {
             if (event.getState().equals(newEvent.getState())) {
                 throw new DuplicateException(String.format("Status: %s already in use event with id=%s",
                         newEvent.getState(), event.getId()));
             }
             event.setState(newEvent.getState());
+        }
+        if (newEvent.getPublishedOn() != null) {
             event.setPublishedOn(newEvent.getPublishedOn());
         }
         return event;

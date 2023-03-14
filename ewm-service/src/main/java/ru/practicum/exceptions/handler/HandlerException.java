@@ -43,11 +43,11 @@ public class HandlerException {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> exc(InvalidRequestException ex) {
+    public ResponseEntity<ErrorResponse> exc(Exception ex) {
         log.info("error code: 400");
         return new ResponseEntity<>(
                 new ErrorResponse(HttpStatus.BAD_REQUEST,
-                        ex.getReason(),
+                        "Integrity constraint has been violated.",
                         ex.getMessage(),
                         LocalDateTime.now().withNano(0)),
                 HttpStatus.BAD_REQUEST);
@@ -65,11 +65,11 @@ public class HandlerException {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> exc(Exception ex) {
+    public ResponseEntity<ErrorResponse> exc(InvalidRequestException ex) {
         log.info("error code: 409");
         return new ResponseEntity<>(
                 new ErrorResponse(HttpStatus.CONFLICT,
-                        "Integrity constraint has been violated.",
+                        ex.getReason(),
                         ex.getMessage(),
                         LocalDateTime.now().withNano(0)),
                 HttpStatus.CONFLICT);

@@ -15,6 +15,10 @@ public interface RequestRepository extends JpaRepository<Request, Long>, Request
             "where r.status = 'CONFIRMED' and r.event in :events")
     List<Request> getConfirmedRequests(List<Event> events);
 
+    @Query("select r from Request r " +
+            "where r.status = 'PENDING' and r.event in :events")
+    List<Request> getPendingRequests(List<Event> events);
+
     @Query("select r from Request r where r.user.id = :userId")
     List<Request> getRequestsByUserId(Long userId);
 
