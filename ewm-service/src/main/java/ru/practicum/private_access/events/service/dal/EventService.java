@@ -5,7 +5,6 @@ import ru.practicum.private_access.events.dto.EventDtoInput;
 import ru.practicum.private_access.events.dto.EventDtoOutput;
 import ru.practicum.private_access.events.dto.EventShortDtoOutput;
 import ru.practicum.private_access.events.model.Event;
-import ru.practicum.private_access.events.state.State;
 import ru.practicum.public_access.events.sort.Sort;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +24,7 @@ public interface EventService {
 
     EventDtoOutput updateByAdmin(Long id, EventDtoForAdminInput eventDto);
 
-    List<EventDtoOutput> getAllByParamForAdmin(List<Long> user, List<State> states, List<Long> categories,
+    List<EventDtoOutput> getAllByParamForAdmin(List<Long> user, List<String> states, List<Long> categories,
                                                LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                Integer from, Integer size);
 

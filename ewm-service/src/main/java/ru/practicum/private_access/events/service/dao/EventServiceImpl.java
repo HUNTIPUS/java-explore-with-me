@@ -109,23 +109,31 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventDtoOutput updateByAdmin(Long id, EventDtoForAdminInput eventDto) {
-
+        if (eventDto.getCategory() == null) {
+            Event event = getById(id);
+            return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEventAdmin(eventDto,
+                    null)));
+        }
         return EventMapper.toEventDtoOutput(updateEvent(getById(id), EventMapper.toEventAdmin(eventDto,
                 categoryService.getById(eventDto.getCategory()))));
     }
 
     @Override
-    public List<EventDtoOutput> getAllByParamForAdmin(List<Long> users, List<State> states,
+    public List<EventDtoOutput> getAllByParamForAdmin(List<Long> users, List<String> states,
                                                       List<Long> categories, LocalDateTime rangeStart,
                                                       LocalDateTime rangeEnd, Integer from, Integer size) {
         if (users == null) {
             users = new ArrayList<>(userService.getAll().stream().collect(groupingBy(User::getId)).keySet());
         }
-        if (states == null) {
-            states = new ArrayList<>();
-            states.add(State.PUBLISHED);
-            states.add(State.PENDING);
-            states.add(State.CANCELED);
+        List<State> statesNew = new ArrayList<>();
+        if (states == null || states.isEmpty()) {
+            statesNew.add(State.PUBLISHED);
+            statesNew.add(State.PENDING);
+            statesNew.add(State.CANCELED);
+        } else {
+            for (String state: states) {
+                statesNew.add(State.valueOf(state));
+            }
         }
         if (categories == null) {
             categories = getIdCategories();
@@ -134,10 +142,10 @@ public class EventServiceImpl implements EventService {
             rangeStart = LocalDateTime.now().withNano(0);
         }
         if (rangeEnd == null) {
-            rangeEnd = LocalDateTime.MAX;
+            rangeEnd = LocalDateTime.now().withNano(0).plusYears(10);
         }
         List<EventDtoOutput> eventDtoOutputList = new ArrayList<>();
-        List<Event> events = repository.getAllByParam(users, states, categories, rangeStart, rangeEnd,
+        List<Event> events = repository.getAllByParam(users, statesNew, categories, rangeStart, rangeEnd,
                 PageRequest.of(from > 0 ? from / size : 0, size));
         Map<Event, Long> confirmedRequests = getCountConfirmedRequestsForEvent(events);
         List<String> uris = new ArrayList<>();

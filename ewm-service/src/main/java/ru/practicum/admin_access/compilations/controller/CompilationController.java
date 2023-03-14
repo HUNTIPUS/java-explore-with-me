@@ -2,6 +2,7 @@ package ru.practicum.admin_access.compilations.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.admin_access.compilations.dto.CompilationDtoInput;
@@ -21,6 +22,7 @@ public class CompilationController {
     private final CompilationService service;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public CompilationDtoOutput create(@RequestBody @Validated(Create.class) CompilationDtoInput compilationDtoInput) {
         log.info("create compilation");
         return service.create(compilationDtoInput);
@@ -34,6 +36,7 @@ public class CompilationController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable @Positive Long id) {
         service.delete(id);
         log.info("delete compilation with id={}", id);

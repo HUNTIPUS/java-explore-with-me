@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.admin_access.users.model.User;
 import ru.practicum.admin_access.users.service.dal.UserService;
+import ru.practicum.exceptions.exception.AccessException;
 import ru.practicum.exceptions.exception.InvalidRequestException;
-import ru.practicum.exceptions.exception.ObjectExistenceException;
 import ru.practicum.private_access.events.model.Event;
 import ru.practicum.private_access.events.service.dal.EventService;
 import ru.practicum.private_access.events.state.State;
@@ -53,7 +53,7 @@ public class RequestServiceImpl implements RequestService {
             request.setCreated(LocalDateTime.now().withNano(0));
             return RequestMapper.toRequestDto(repository.save(request));
         } else {
-            throw new ObjectExistenceException("Event is not published");
+            throw new AccessException("Event is not published");
         }
     }
 

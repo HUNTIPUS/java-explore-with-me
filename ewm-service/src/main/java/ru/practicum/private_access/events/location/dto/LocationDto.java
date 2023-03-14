@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.valid.Create;
-import ru.practicum.valid.Update;
 
 import javax.validation.constraints.NotNull;
 
@@ -14,8 +13,8 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Builder
 public class LocationDto {
-    @NotNull(groups = {Create.class, Update.class})
+    @NotNull(groups = {Create.class})
     private Float lat;
-    @NotNull(groups = {Create.class, Update.class})
+    @NotNull(groups = {Create.class})
     private Float lon;
 }

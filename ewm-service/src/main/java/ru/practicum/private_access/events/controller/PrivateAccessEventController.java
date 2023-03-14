@@ -2,6 +2,7 @@ package ru.practicum.private_access.events.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.private_access.events.dto.EventDtoInput;
@@ -24,6 +25,7 @@ public class PrivateAccessEventController {
     private final EventService service;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public EventDtoOutput create(@RequestBody @Validated(Create.class) EventDtoInput eventDtoInput,
                                  @PathVariable @Positive Long userId) {
         log.info("create event");

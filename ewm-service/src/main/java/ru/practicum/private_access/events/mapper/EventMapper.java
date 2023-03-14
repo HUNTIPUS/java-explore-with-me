@@ -40,15 +40,33 @@ public class EventMapper {
 
     public static Event toEventAdmin(EventDtoForAdminInput eventDto, Category category) {
         Event event = new Event();
-        event.setAnnotation(eventDto.getAnnotation());
-        event.setTitle(eventDto.getTitle());
-        event.setDescription(eventDto.getDescription());
-        event.setEventDate(eventDto.getEventDate());
-        event.setParticipantLimit(eventDto.getParticipantLimit());
-        event.setPaid(eventDto.getPaid());
-        event.setRequestModeration(eventDto.getRequestModeration());
-        event.setCategory(category);
-        event.setLocation(LocationMapper.toLocation(eventDto.getLocation()));
+        if (eventDto.getTitle() != null && !eventDto.getTitle().isBlank()) {
+            event.setTitle(eventDto.getTitle());
+        }
+        if (eventDto.getAnnotation() != null && !eventDto.getAnnotation().isBlank()) {
+            event.setAnnotation(eventDto.getAnnotation());
+        }
+        if (eventDto.getDescription() != null && !eventDto.getDescription().isBlank()) {
+            event.setDescription(eventDto.getDescription());
+        }
+        if (eventDto.getParticipantLimit() != null) {
+            event.setParticipantLimit(eventDto.getParticipantLimit());
+        }
+        if (eventDto.getEventDate() != null) {
+            event.setEventDate(eventDto.getEventDate());
+        }
+        if (eventDto.getPaid() != null) {
+            event.setPaid(eventDto.getPaid());
+        }
+        if (eventDto.getRequestModeration() != null) {
+            event.setRequestModeration(eventDto.getRequestModeration());
+        }
+        if (category != null) {
+            event.setCategory(category);
+        }
+        if (eventDto.getLocation() != null) {
+            event.setLocation(LocationMapper.toLocation(eventDto.getLocation()));
+        }
         if (StateAction.valueOf(eventDto.getStateAction()).equals(StateAction.PUBLISH_EVENT)) {
             event.setState(State.PUBLISHED);
             event.setPublishedOn(eventDto.getPublishedOn());

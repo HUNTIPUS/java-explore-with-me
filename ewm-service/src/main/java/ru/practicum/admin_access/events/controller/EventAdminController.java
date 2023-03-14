@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.private_access.events.dto.EventDtoForAdminInput;
 import ru.practicum.private_access.events.dto.EventDtoOutput;
 import ru.practicum.private_access.events.service.dal.EventService;
-import ru.practicum.private_access.events.state.State;
 import ru.practicum.valid.Update;
 
 import javax.validation.constraints.Positive;
@@ -20,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Validated
-@RequestMapping("/admin/events")
+@RequestMapping(path = "/admin/events")
 public class EventAdminController {
 
     public static final String FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -35,7 +34,7 @@ public class EventAdminController {
 
     @GetMapping
     public List<EventDtoOutput> getAllByParam(@RequestParam(required = false) List<Long> users,
-                                              @RequestParam(required = false) List<State> states,
+                                              @RequestParam(required = false) List<String> states,
                                               @RequestParam(required = false) List<Long> categories,
                                               @RequestParam(required = false) @DateTimeFormat(pattern = FORMAT)
                                               LocalDateTime rangeStart,

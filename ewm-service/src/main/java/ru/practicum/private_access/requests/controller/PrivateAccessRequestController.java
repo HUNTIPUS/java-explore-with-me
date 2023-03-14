@@ -2,6 +2,7 @@ package ru.practicum.private_access.requests.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.private_access.requests.dto.RequestDtoOutput;
@@ -23,6 +24,7 @@ public class PrivateAccessRequestController {
     private final RequestService service;
 
     @PostMapping("/requests")
+    @ResponseStatus(HttpStatus.CREATED)
     public RequestDtoOutput create(@PathVariable @Positive Long userId,
                                    @RequestParam @Positive Long eventId) {
         log.info("create request by user with id={}", userId);
