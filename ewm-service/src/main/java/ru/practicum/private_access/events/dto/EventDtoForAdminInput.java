@@ -27,7 +27,6 @@ public class EventDtoForAdminInput {
     Integer participantLimit;
     Boolean paid;
     Boolean requestModeration;
-    @NotBlank(groups = {Update.class})
     String stateAction;
     LocalDateTime publishedOn = LocalDateTime.now().withNano(0);
 }

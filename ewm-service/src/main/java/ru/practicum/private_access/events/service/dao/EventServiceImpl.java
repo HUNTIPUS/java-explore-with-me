@@ -76,7 +76,7 @@ public class EventServiceImpl implements EventService {
     public EventDtoOutput update(Long userId, Long eventId, EventDtoInput eventDtoInput) {
         Event event = getById(eventId);
         User user = userService.getById(userId);
-        if (!eventDtoInput.getEventDate().isAfter(LocalDateTime.now())) {
+        if (eventDtoInput.getEventDate() != null && !eventDtoInput.getEventDate().isAfter(LocalDateTime.now())) {
             throw new TimeException("Event date not in the future.");
         }
         if (eventDtoInput.getStateAction() != null
@@ -131,7 +131,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDtoOutput updateByAdmin(Long id, EventDtoForAdminInput eventDto) {
         Event event = getById(id);
-        if (!eventDto.getEventDate().isAfter(LocalDateTime.now())) {
+        if (eventDto.getEventDate() != null && !eventDto.getEventDate().isAfter(LocalDateTime.now())) {
             throw new TimeException("Event date not in the future.");
         }
         if (!event.getState().equals(State.PENDING)) {
@@ -141,7 +141,7 @@ public class EventServiceImpl implements EventService {
             return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEventAdmin(eventDto,
                     null)));
         }
-        return EventMapper.toEventDtoOutput(updateEvent(getById(id), EventMapper.toEventAdmin(eventDto,
+        return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEventAdmin(eventDto,
                 categoryService.getById(eventDto.getCategory()))));
     }
 

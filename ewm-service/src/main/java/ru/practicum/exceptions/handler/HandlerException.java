@@ -1,8 +1,10 @@
 package ru.practicum.exceptions.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.postgresql.util.PSQLException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -134,6 +136,28 @@ public class HandlerException {
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> exc(ConstraintViolationException ex) {
+        log.info("error code: 409");
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.CONFLICT,
+                        "Integrity constraint has been violated.",
+                        ex.getMessage(),
+                        LocalDateTime.now().withNano(0)),
+                HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> exc(PSQLException ex) {
+        log.info("error code: 409");
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.CONFLICT,
+                        "Integrity constraint has been violated.",
+                        ex.getMessage(),
+                        LocalDateTime.now().withNano(0)),
+                HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> exc(HttpMessageNotReadableException ex) {
         log.info("error code: 409");
         return new ResponseEntity<>(
                 new ErrorResponse(HttpStatus.CONFLICT,
