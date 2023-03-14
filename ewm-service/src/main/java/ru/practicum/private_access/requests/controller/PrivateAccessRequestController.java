@@ -11,6 +11,7 @@ import ru.practicum.private_access.requests.dto.RequestsForStatusDtoOutput;
 import ru.practicum.private_access.requests.service.dal.RequestService;
 import ru.practicum.valid.Update;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class PrivateAccessRequestController {
     @PostMapping("/requests")
     @ResponseStatus(HttpStatus.CREATED)
     public RequestDtoOutput create(@PathVariable @Positive Long userId,
-                                   @RequestParam @Positive Long eventId) {
+                                   @RequestParam @NotNull @Positive Long eventId) {
         log.info("create request by user with id={}", userId);
         return service.create(userId, eventId);
     }
