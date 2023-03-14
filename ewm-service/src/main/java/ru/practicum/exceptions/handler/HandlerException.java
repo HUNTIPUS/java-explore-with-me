@@ -4,11 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.exceptions.exception.*;
 import ru.practicum.exceptions.response.ErrorResponse;
 
+import javax.validation.ConstraintViolationException;
 import javax.xml.bind.ValidationException;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -33,6 +35,17 @@ public class HandlerException {
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> exc(ValidationException ex) {
+        log.info("error code: 400");
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.BAD_REQUEST,
+                        "Incorrectly made request.",
+                        ex.getMessage(),
+                        LocalDateTime.now().withNano(0)),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> exc(MissingServletRequestParameterException ex) {
         log.info("error code: 400");
         return new ResponseEntity<>(
                 new ErrorResponse(HttpStatus.BAD_REQUEST,
@@ -120,7 +133,7 @@ public class HandlerException {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> exc(Throwable ex) {
+    public ResponseEntity<ErrorResponse> exc(ConstraintViolationException ex) {
         log.info("error code: 409");
         return new ResponseEntity<>(
                 new ErrorResponse(HttpStatus.CONFLICT,

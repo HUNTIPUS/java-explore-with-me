@@ -28,7 +28,7 @@ public class PrivateAccessEventController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventDtoOutput create(@RequestBody @Validated(Create.class) EventDtoInput eventDtoInput,
-                                 @PathVariable @Valid @NotNull @Positive Long userId) {
+                                 @PathVariable @Positive Long userId) {
         log.info("create event");
         return service.create(userId, eventDtoInput);
     }
