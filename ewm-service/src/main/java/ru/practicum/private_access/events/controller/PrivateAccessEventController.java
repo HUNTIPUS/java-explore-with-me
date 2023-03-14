@@ -11,8 +11,6 @@ import ru.practicum.private_access.events.dto.EventShortDtoOutput;
 import ru.practicum.private_access.events.service.dal.EventService;
 import ru.practicum.valid.Create;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
