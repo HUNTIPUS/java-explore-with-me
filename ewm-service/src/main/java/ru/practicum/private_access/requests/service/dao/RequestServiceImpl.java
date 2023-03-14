@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.admin_access.users.model.User;
 import ru.practicum.admin_access.users.service.dal.UserService;
 import ru.practicum.exceptions.exception.AccessException;
+import ru.practicum.exceptions.exception.DuplicateException;
 import ru.practicum.exceptions.exception.InvalidRequestException;
+import ru.practicum.exceptions.exception.StatusException;
 import ru.practicum.private_access.events.model.Event;
 import ru.practicum.private_access.events.service.dal.EventService;
 import ru.practicum.private_access.events.state.State;
@@ -23,6 +25,7 @@ import ru.practicum.private_access.requests.repository.RequestRepository;
 import ru.practicum.private_access.requests.service.dal.RequestService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,12 +49,22 @@ public class RequestServiceImpl implements RequestService {
                 throw new InvalidRequestException(String
                         .format("The user with id=%s is the initiator of the event with id=%s", userId, event.getId()));
             }
-            Request request = new Request();
-            request.setUser(user);
-            request.setEvent(event);
-            request.setStatus(Status.PENDING);
-            request.setCreated(LocalDateTime.now().withNano(0));
-            return RequestMapper.toRequestDto(repository.save(request));
+            if (repository.getByEventIdAndUserId(eventId, userId) != null) {
+                throw new DuplicateException("Request already exists");
+            }
+            List<Event> events = new ArrayList<>();
+            events.add(event);
+            List<Request> requests = repository.getConfirmedRequests(events);
+            if (requests.isEmpty() || requests.size() < event.getParticipantLimit()) {
+                Request request = new Request();
+                request.setUser(user);
+                request.setEvent(event);
+                request.setStatus(Status.PENDING);
+                request.setCreated(LocalDateTime.now().withNano(0));
+                return RequestMapper.toRequestDto(repository.save(request));
+            } else {
+                throw new  AccessException(String.format("All seats for the event with id=%s are occupied.", eventId));
+            }
         } else {
             throw new AccessException("Event is not published");
         }
@@ -86,9 +99,16 @@ public class RequestServiceImpl implements RequestService {
     public RequestsForStatusDtoOutput update(Long userId, Long eventId, RequestsForStatusDtoInput requestDto) {
         userService.getById(userId);
         eventService.getById(eventId);
+        Status statusFromRequest = Status.valueOf(requestDto.getStatus());
+        List<Request> requests = repository.getSelectedRequest(userId, eventId, requestDto.getRequestIds());
+        for (Request request: requests) {
+            if (!request.getStatus().equals(Status.PENDING)) {
+                throw new StatusException(String.format("Request with id=%s has status is %s", request.getId(),
+                        request.getStatus()));
+            }
+        }
         List<Long> remainingRequests = repository.getRemainingRequest(userId, eventId, requestDto.getRequestIds())
                 .stream().map(Request::getId).collect(Collectors.toList());
-        Status statusFromRequest = Status.valueOf(requestDto.getStatus());
         List<Request> selectedRequestsNew = repository.updateRequests(requestDto.getRequestIds(),
                 statusFromRequest.name());
         Status status = Status.CONFIRMED;

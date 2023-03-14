@@ -6,10 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.exceptions.exception.AccessException;
-import ru.practicum.exceptions.exception.ConstraintForeignKeyException;
-import ru.practicum.exceptions.exception.InvalidRequestException;
-import ru.practicum.exceptions.exception.ObjectExistenceException;
+import ru.practicum.exceptions.exception.*;
 import ru.practicum.exceptions.response.ErrorResponse;
 
 import javax.xml.bind.ValidationException;
@@ -19,6 +16,20 @@ import java.util.Objects;
 @Slf4j
 @RestControllerAdvice
 public class HandlerException {
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> exc(MethodArgumentNotValidException ex) {
+        log.info("error code: 400");
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.BAD_REQUEST,
+                        "Incorrectly made request.",
+                        String.format("Field: %s. Error: %s. Value: %s",
+                                Objects.requireNonNull(ex.getFieldError()).getField(),
+                                ex.getFieldError().getDefaultMessage(),
+                                ex.getFieldError().getRejectedValue()),
+                        LocalDateTime.now().withNano(0)),
+                HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> exc(ValidationException ex) {
@@ -54,28 +65,47 @@ public class HandlerException {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> exc(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> exc(Exception ex) {
         log.info("error code: 409");
         return new ResponseEntity<>(
                 new ErrorResponse(HttpStatus.CONFLICT,
-                        "Incorrectly made request.",
-                        String.format("Field: %s. Error: %s. Value: %s",
-                                Objects.requireNonNull(ex.getFieldError()).getField(),
-                                ex.getFieldError().getDefaultMessage(),
-                                ex.getFieldError().getRejectedValue()),
+                        "Integrity constraint has been violated.",
+                        ex.getMessage(),
                         LocalDateTime.now().withNano(0)),
                 HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> exc(Exception ex) {
+    public ResponseEntity<ErrorResponse> exc(DuplicateException ex) {
         log.info("error code: 409");
         return new ResponseEntity<>(
-                new ErrorResponse(HttpStatus.BAD_REQUEST,
-                        "Integrity constraint has been violated.",
+                new ErrorResponse(HttpStatus.CONFLICT,
+                        ex.getReason(),
                         ex.getMessage(),
                         LocalDateTime.now().withNano(0)),
-                HttpStatus.BAD_REQUEST);
+                HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> exc(TimeException ex) {
+        log.info("error code: 409");
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.CONFLICT,
+                        ex.getReason(),
+                        ex.getMessage(),
+                        LocalDateTime.now().withNano(0)),
+                HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> exc(StatusException ex) {
+        log.info("error code: 409");
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.CONFLICT,
+                        ex.getReason(),
+                        ex.getMessage(),
+                        LocalDateTime.now().withNano(0)),
+                HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler

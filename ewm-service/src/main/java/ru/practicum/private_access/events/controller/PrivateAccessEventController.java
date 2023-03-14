@@ -33,7 +33,7 @@ public class PrivateAccessEventController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventDtoOutput update(@RequestBody @Validated(Update.class) EventDtoInput eventDtoInput,
+    public EventDtoOutput update(@RequestBody EventDtoInput eventDtoInput,
                                  @PathVariable @Positive Long userId,
                                  @PathVariable @Positive Long eventId) {
         log.info("update event with id={}", eventId);

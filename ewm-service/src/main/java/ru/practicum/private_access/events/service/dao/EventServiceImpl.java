@@ -13,6 +13,8 @@ import ru.practicum.admin_access.users.model.User;
 import ru.practicum.admin_access.users.service.dal.UserService;
 import ru.practicum.dto.StatsDtoInput;
 import ru.practicum.dto.StatsDtoOutput;
+import ru.practicum.exceptions.exception.DuplicateException;
+import ru.practicum.exceptions.exception.TimeException;
 import ru.practicum.private_access.events.dto.EventDtoForAdminInput;
 import ru.practicum.private_access.events.dto.EventDtoInput;
 import ru.practicum.private_access.events.dto.EventDtoOutput;
@@ -58,6 +60,9 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventDtoOutput create(Long userId, EventDtoInput eventDtoInput) {
+        if (!eventDtoInput.getEventDate().isAfter(LocalDateTime.now())) {
+            throw new TimeException("Event date not in the future.");
+        }
         saveLocation(eventDtoInput.getLocation());
         return EventMapper.toEventDtoOutput(repository.save(EventMapper.toEvent(eventDtoInput,
                 userService.getById(userId),
@@ -296,6 +301,10 @@ public class EventServiceImpl implements EventService {
             event.setCompilation(newEvent.getCompilation());
         }
         if (newEvent.getPublishedOn() != null) {
+            if (event.getState().equals(newEvent.getState())) {
+                throw new DuplicateException(String.format("Status: %s already in use event with id=%s",
+                        newEvent.getState(), event.getId()));
+            }
             event.setState(newEvent.getState());
             event.setPublishedOn(newEvent.getPublishedOn());
         }
