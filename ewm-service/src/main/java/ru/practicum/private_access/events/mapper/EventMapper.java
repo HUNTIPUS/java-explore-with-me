@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 public class EventMapper {
 
     public static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     public static Event toEvent(EventDtoInput eventDtoInput, User user, Category category) {
         Event event = new Event();
         event.setAnnotation(eventDtoInput.getAnnotation());
