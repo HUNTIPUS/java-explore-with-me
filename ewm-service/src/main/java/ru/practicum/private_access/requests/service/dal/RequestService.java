@@ -10,7 +10,7 @@ import java.util.List;
 public interface RequestService {
     RequestDtoOutput create(Long userId, Long eventId);
 
-    void cancel(Long userId, Long requestId);
+    RequestDtoOutput cancel(Long userId, Long requestId);
 
     Request getById(Long id);
 

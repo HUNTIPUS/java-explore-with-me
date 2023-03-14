@@ -72,7 +72,7 @@ public class EventMapper {
         if (StateAction.valueOf(eventDto.getStateAction()).equals(StateAction.PUBLISH_EVENT)) {
             event.setState(State.PUBLISHED);
             event.setPublishedOn(eventDto.getPublishedOn());
-        } else {
+        } else if (StateAction.valueOf(eventDto.getStateAction()).equals(StateAction.CANCEL_REVIEW)) {
             event.setState(State.CANCELED);
         }
         return event;

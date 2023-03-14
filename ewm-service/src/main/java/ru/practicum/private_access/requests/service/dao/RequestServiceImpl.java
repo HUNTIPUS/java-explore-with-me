@@ -72,10 +72,11 @@ public class RequestServiceImpl implements RequestService {
 
     @Transactional
     @Override
-    public void cancel(Long userId, Long requestId) {
-        getById(requestId);
+    public RequestDtoOutput cancel(Long userId, Long requestId) {
+        Request request = getById(requestId);
         userService.getById(userId);
-        repository.deleteRequestByIdAndUserId(requestId, userId);
+        request.setStatus(Status.REJECTED);
+        return RequestMapper.toRequestDto(request);
     }
 
     @Override

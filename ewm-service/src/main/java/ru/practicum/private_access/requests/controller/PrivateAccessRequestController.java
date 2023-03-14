@@ -32,10 +32,10 @@ public class PrivateAccessRequestController {
     }
 
     @PatchMapping("/requests/{requestId}/cancel")
-    public void cancel(@PathVariable @Positive Long userId,
+    public RequestDtoOutput cancel(@PathVariable @Positive Long userId,
                        @PathVariable @Positive Long requestId) {
-        service.cancel(userId, requestId);
         log.info("cancel request with id={} by user with id={}", requestId, userId);
+        return service.cancel(userId, requestId);
     }
 
     @GetMapping("/requests")
