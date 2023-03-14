@@ -15,12 +15,14 @@ import ru.practicum.private_access.events.location.mapper.LocationMapper;
 import ru.practicum.private_access.events.model.Event;
 import ru.practicum.private_access.events.state.State;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class EventMapper {
 
+    public static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     public static Event toEvent(EventDtoInput eventDtoInput, User user, Category category) {
         Event event = new Event();
         event.setAnnotation(eventDtoInput.getAnnotation());
@@ -83,12 +85,16 @@ public class EventMapper {
     }
 
     public static EventShortDtoOutput toEventShortDtoOutput(Event event) {
+        String eventDate = null;
+        if (event.getEventDate() != null) {
+            eventDate = event.getEventDate().format(FORMAT);
+        }
         return EventShortDtoOutput
                 .builder()
                 .annotation(event.getAnnotation())
                 .title(event.getTitle())
                 .id(event.getId())
-                .eventDate(event.getEventDate())
+                .eventDate(eventDate)
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .paid(event.getPaid())
                 .initiator(UserMapper.toUserShortDto(event.getUser()))
@@ -98,20 +104,32 @@ public class EventMapper {
     }
 
     public static EventDtoOutput toEventDtoOutput(Event event) {
+        String eventDate = null;
+        String createdOn = null;
+        String publishedOn = null;
+        if (event.getEventDate() != null) {
+            eventDate = event.getEventDate().format(FORMAT);
+        }
+        if (event.getCreatedOn() != null) {
+            createdOn = event.getCreatedOn().format(FORMAT);
+        }
+        if (event.getPublishedOn() != null) {
+            publishedOn = event.getPublishedOn().format(FORMAT);
+        }
         return EventDtoOutput
                 .builder()
                 .annotation(event.getAnnotation())
                 .title(event.getTitle())
                 .id(event.getId())
-                .eventDate(event.getEventDate())
+                .eventDate(eventDate)
                 .location(LocationMapper.toLocationDto(event.getLocation()))
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .paid(event.getPaid())
                 .initiator(UserMapper.toUserShortDto(event.getUser()))
-                .createdOn(event.getCreatedOn())
+                .createdOn(createdOn)
                 .description(event.getDescription())
                 .state(event.getState())
-                .publishedOn(event.getPublishedOn())
+                .publishedOn(publishedOn)
                 .participantLimit(event.getParticipantLimit())
                 .requestModeration(event.getRequestModeration())
                 .confirmedRequests(0)

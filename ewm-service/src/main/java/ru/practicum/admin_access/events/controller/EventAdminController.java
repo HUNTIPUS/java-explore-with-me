@@ -22,7 +22,7 @@ import java.util.List;
 @RequestMapping(path = "/admin/events")
 public class EventAdminController {
 
-    public static final String FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String FORMAT = "yyyy-MM-dd";
     private final EventService service;
 
     @PatchMapping("/{id}")

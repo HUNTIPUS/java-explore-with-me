@@ -7,8 +7,6 @@ import ru.practicum.admin_access.users.dto.UserShortDto;
 import ru.practicum.private_access.events.location.dto.LocationDto;
 import ru.practicum.private_access.events.state.State;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -22,13 +20,13 @@ public class EventDtoOutput {
     String annotation;
     String title;
     String description;
-    LocalDateTime createdOn;
-    LocalDateTime eventDate;
+    String createdOn;
+    String eventDate;
     Integer participantLimit;
     Boolean paid;
     Boolean requestModeration;
     UserShortDto initiator;
-    LocalDateTime publishedOn;
+    String publishedOn;
     Integer confirmedRequests;
     State state;
     Long views;
