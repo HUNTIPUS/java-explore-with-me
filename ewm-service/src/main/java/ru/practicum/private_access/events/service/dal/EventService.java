@@ -35,4 +35,6 @@ public interface EventService {
                                                      Boolean onlyAvailable, Sort sort, Integer from, Integer size,
                                                      HttpServletRequest request);
 
+    List<EventShortDtoOutput> getEventShortDtoOutput(List<Event> events);
+
 }

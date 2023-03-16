@@ -262,13 +262,8 @@ public class EventServiceImpl implements EventService {
         return getEventShortDtoOutput(events);
     }
 
-    private Map<String, Long> getView(List<String> uris) {
-        List<StatsDtoOutput> stats = statsService.getStats(LocalDateTime.MIN,
-                LocalDateTime.now().withNano(0), uris, false);
-        return stats.stream().collect(groupingBy(StatsDtoOutput::getUri, counting()));
-    }
-
-    private List<EventShortDtoOutput> getEventShortDtoOutput(List<Event> events) {
+    @Override
+    public List<EventShortDtoOutput> getEventShortDtoOutput(List<Event> events) {
         List<EventShortDtoOutput> eventShortDtoOutputList = new ArrayList<>();
         List<String> uris = new ArrayList<>();
         Map<Event, Long> confirmedRequests = getCountConfirmedRequestsForEvent(events);
@@ -283,6 +278,12 @@ public class EventServiceImpl implements EventService {
                     Objects.requireNonNullElse(views.get(String.format("/events/%s", event.getId())), 0L)));
         }
         return eventShortDtoOutputList;
+    }
+
+    private Map<String, Long> getView(List<String> uris) {
+        List<StatsDtoOutput> stats = statsService.getStats(LocalDateTime.MIN,
+                LocalDateTime.now().withNano(0), uris, false);
+        return stats.stream().collect(groupingBy(StatsDtoOutput::getUri, counting()));
     }
 
     private List<Long> getIdCategories() {

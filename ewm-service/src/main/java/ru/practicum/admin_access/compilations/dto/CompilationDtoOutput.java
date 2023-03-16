@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.private_access.events.dto.EventShortDtoOutput;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter

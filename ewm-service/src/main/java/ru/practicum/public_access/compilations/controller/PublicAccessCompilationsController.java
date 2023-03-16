@@ -21,7 +21,7 @@ public class PublicAccessCompilationsController {
     private final CompilationService service;
 
     @GetMapping
-    public List<CompilationDtoOutput> getByParam(@RequestParam(defaultValue = "false") Boolean pinned,
+    public List<CompilationDtoOutput> getByParam(@RequestParam(required = false) Boolean pinned,
                                                  @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                  @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("compilations by pinned={}, from={}, size={}", pinned, from, size);

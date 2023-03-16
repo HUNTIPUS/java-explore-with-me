@@ -11,9 +11,9 @@ import ru.practicum.admin_access.compilations.model.Compilation;
 import ru.practicum.admin_access.compilations.repository.CompilationRepository;
 import ru.practicum.admin_access.compilations.service.dal.CompilationService;
 import ru.practicum.exceptions.exception.ObjectExistenceException;
-import ru.practicum.private_access.events.mapper.EventMapper;
 import ru.practicum.private_access.events.model.Event;
 import ru.practicum.private_access.events.repository.EventRepository;
+import ru.practicum.private_access.events.service.dal.EventService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
+    private final EventService service;
 
     @Transactional
     @Override
@@ -41,7 +42,7 @@ public class CompilationServiceImpl implements CompilationService {
             for (Event event : events) {
                 event.setCompilation(compilation);
             }
-            compilationDtoOutput.setEvents(EventMapper.toEventShortDtoOutputList(events));
+            appendEventToCompilation(compilationDtoOutput, events);
         }
         return compilationDtoOutput;
     }
@@ -67,7 +68,7 @@ public class CompilationServiceImpl implements CompilationService {
                     event.setCompilation(compilation);
                 }
             }
-            compilationDtoOutput.setEvents(EventMapper.toEventShortDtoOutputList(newEvents));
+            appendEventToCompilation(compilationDtoOutput, newEvents);
         }
         return compilationDtoOutput;
     }
@@ -114,7 +115,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     private CompilationDtoOutput appendEventToCompilation(CompilationDtoOutput compilationDtoOutput,
                                                           List<Event> events) {
-        compilationDtoOutput.setEvents(EventMapper.toEventShortDtoOutputList(events));
+        compilationDtoOutput.setEvents(service.getEventShortDtoOutput(events));
         return compilationDtoOutput;
     }
 
