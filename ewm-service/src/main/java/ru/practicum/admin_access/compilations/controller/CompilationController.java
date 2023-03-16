@@ -16,7 +16,7 @@ import javax.validation.constraints.Positive;
 @RequiredArgsConstructor
 @Slf4j
 @Validated
-@RequestMapping(path = "admin/compilations")
+@RequestMapping(path = "/admin/compilations")
 public class CompilationController {
 
     private final CompilationService service;

@@ -90,10 +90,8 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = compilationRepository.findById(id)
                 .orElseThrow(() -> new ObjectExistenceException(String
                         .format("Compilation with id=%s was not found", id)));
-        CompilationDtoOutput compilationDtoOutput = CompilationMapper.toCompilationDtoOutput(compilation);
-        List<Event> events = eventRepository.getByCompilation(id);
-        compilationDtoOutput.setEvents(EventMapper.toEventShortDtoOutputList(events));
-        return compilationDtoOutput;
+        return appendEventToCompilation(CompilationMapper.toCompilationDtoOutput(compilation),
+                eventRepository.getByCompilation(id));
     }
 
     @Override

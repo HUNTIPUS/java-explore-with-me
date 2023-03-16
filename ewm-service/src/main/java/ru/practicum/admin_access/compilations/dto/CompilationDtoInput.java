@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.valid.Create;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -14,10 +15,10 @@ import java.util.List;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CompilationDtoInput {
-    Long id;
     @Size(min = 3, max = 120, groups = {Create.class})
     @NotBlank(groups = {Create.class})
     String title;
+    @NotNull(groups = {Create.class})
     Boolean pinned;
     List<Long> events;
 }
