@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Validated
-@RequestMapping("/compilations")
+@RequestMapping(path = "/compilations")
 public class PublicAccessCompilationsController {
 
     private final CompilationService service;

@@ -21,9 +21,7 @@ import ru.practicum.private_access.events.dto.EventDtoForAdminInput;
 import ru.practicum.private_access.events.dto.EventDtoInput;
 import ru.practicum.private_access.events.dto.EventDtoOutput;
 import ru.practicum.private_access.events.dto.EventShortDtoOutput;
-import ru.practicum.private_access.events.location.dto.LocationDto;
-import ru.practicum.private_access.events.location.mapper.LocationMapper;
-import ru.practicum.private_access.events.location.repository.LocationRepository;
+import ru.practicum.private_access.events.location.service.dal.LocationService;
 import ru.practicum.private_access.events.mapper.EventMapper;
 import ru.practicum.private_access.events.model.Event;
 import ru.practicum.private_access.events.repository.EventRepository;
@@ -54,8 +52,9 @@ public class EventServiceImpl implements EventService {
     UserService userService;
     CategoryService categoryService;
     RequestRepository requestRepository;
-    LocationRepository locationRepository;
     StatsService statsService;
+
+    LocationService locationService;
 
     public static final String APP = "ewm-service";
 
@@ -65,7 +64,7 @@ public class EventServiceImpl implements EventService {
         if (!eventDtoInput.getEventDate().isAfter(LocalDateTime.now())) {
             throw new TimeException("Event date not in the future.");
         }
-        saveLocation(eventDtoInput.getLocation());
+        locationService.create(eventDtoInput.getLocation());
         return EventMapper.toEventDtoOutput(repository.save(EventMapper.toEvent(eventDtoInput,
                 userService.getById(userId),
                 categoryService.getById(eventDtoInput.getCategory()))));
@@ -87,7 +86,7 @@ public class EventServiceImpl implements EventService {
             throw new StatusException(String.format("Event has state %s", event.getState()));
         }
         if (eventDtoInput.getLocation() != null) {
-            saveLocation(eventDtoInput.getLocation());
+            locationService.create(eventDtoInput.getLocation());
         }
         if (eventDtoInput.getCategory() == null) {
             return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEvent(eventDtoInput,
@@ -136,6 +135,9 @@ public class EventServiceImpl implements EventService {
         Event event = getById(id);
         if (eventDto.getEventDate() != null && !eventDto.getEventDate().isAfter(LocalDateTime.now())) {
             throw new TimeException("Event date not in the future.");
+        }
+        if (eventDto.getLocation() != null) {
+            locationService.create(eventDto.getLocation());
         }
         if (!event.getState().equals(State.PENDING)) {
             throw new StatusException(String.format("event with id=%s has status %s", id, event.getState()));
@@ -258,12 +260,6 @@ public class EventServiceImpl implements EventService {
                     LocalDateTime.now().withNano(0)));
         }
         return getEventShortDtoOutput(events);
-    }
-
-    private void saveLocation(LocationDto locationDto) {
-        if (locationRepository.getByLatAndLon(locationDto.getLat(), locationDto.getLon()) == null) {
-            locationRepository.save(LocationMapper.toLocation(locationDto));
-        }
     }
 
     private Map<String, Long> getView(List<String> uris) {

@@ -24,12 +24,13 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
 
+    @Transactional
     @Override
     public CompilationDtoOutput create(CompilationDtoInput compilationDtoInput) {
         Compilation compilation = compilationRepository
@@ -45,6 +46,7 @@ public class CompilationServiceImpl implements CompilationService {
         return compilationDtoOutput;
     }
 
+    @Transactional
     @Override
     public CompilationDtoOutput update(Long id, CompilationDtoInput compilationDtoInput) {
         Compilation oldCompilation = compilationRepository.findById(id)
@@ -70,6 +72,7 @@ public class CompilationServiceImpl implements CompilationService {
         return compilationDtoOutput;
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
         getById(id);
