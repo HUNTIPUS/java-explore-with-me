@@ -36,7 +36,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("select e from Event e where e.compilation in :compilations")
     List<Event> getEventByCompilation(List<Compilation> compilations);
 
-    @Query("select e from Event e where e.annotation like %:text% and e.description like %:text% " +
+    @Query("select e from Event e where (e.annotation like %:text% or e.description like %:text%) " +
             "and e.category.id in :categories and e.paid = :paid and e.eventDate between :rangeStart and :rangeEnd " +
             "and e.state = 'PUBLISHED'")
     List<Event> getEventsByTextWithoutAvailable(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
@@ -47,7 +47,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> getEventsWithoutTextWithoutAvailable(List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                                      LocalDateTime rangeEnd, Pageable pageable);
 
-    @Query("select e from Event e where e.annotation like %:text% and e.description like %:text% " +
+    @Query("select e from Event e where (e.annotation like %:text% or e.description like %:text%) " +
             "and e.category.id in :categories and e.paid = :paid and e.eventDate between :rangeStart and :rangeEnd " +
             "and e.state = 'PUBLISHED' and e.participantLimit > (select count(r) from Request r where " +
             "r.event.id = e.id)")

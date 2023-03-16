@@ -75,24 +75,29 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDtoOutput update(Long userId, Long eventId, EventDtoInput eventDtoInput) {
         Event event = getById(eventId);
-        User user = userService.getById(userId);
-        if (eventDtoInput.getEventDate() != null && !eventDtoInput.getEventDate().isAfter(LocalDateTime.now())) {
-            throw new TimeException("Event date not in the future.");
-        }
-        if (eventDtoInput.getStateAction() != null
-                && eventDtoInput.getStateAction().equals(StateAction.SEND_TO_REVIEW.name())) {
-            event.setState(State.PENDING);
-        }
-        if (eventDtoInput.getLocation() != null) {
-            saveLocation(eventDtoInput.getLocation());
-        }
-        if (eventDtoInput.getCategory() == null) {
+        if (eventDtoInput.getStateAction() == null && (event.getState().equals(State.PUBLISHED)
+                || event.getState().equals(State.CANCELED))) {
+            User user = userService.getById(userId);
+            if (eventDtoInput.getEventDate() != null && !eventDtoInput.getEventDate().isAfter(LocalDateTime.now())) {
+                throw new TimeException("Event date not in the future.");
+            }
+            if (eventDtoInput.getStateAction() != null
+                    && eventDtoInput.getStateAction().equals(StateAction.SEND_TO_REVIEW.name())) {
+                event.setState(State.PENDING);
+            }
+            if (eventDtoInput.getLocation() != null) {
+                saveLocation(eventDtoInput.getLocation());
+            }
+            if (eventDtoInput.getCategory() == null) {
+                return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEvent(eventDtoInput,
+                        user, null)));
+            }
             return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEvent(eventDtoInput,
-                    user, null)));
+                    user,
+                    categoryService.getById(eventDtoInput.getCategory()))));
+        } else {
+            throw new StatusException(String.format("Event has state %s", event.getState()));
         }
-        return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEvent(eventDtoInput,
-                user,
-                categoryService.getById(eventDtoInput.getCategory()))));
     }
 
     @Override

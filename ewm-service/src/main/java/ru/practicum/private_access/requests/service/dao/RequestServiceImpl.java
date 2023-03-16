@@ -55,7 +55,7 @@ public class RequestServiceImpl implements RequestService {
             List<Event> events = new ArrayList<>();
             events.add(event);
             List<Request> requests = repository.getPendingRequests(events);
-            if (requests.isEmpty() || requests.size() <= event.getParticipantLimit()) {
+            if (requests.isEmpty() || requests.size() < event.getParticipantLimit()) {
                 Request request = new Request();
                 request.setUser(user);
                 request.setEvent(event);
@@ -75,7 +75,7 @@ public class RequestServiceImpl implements RequestService {
     public RequestDtoOutput cancel(Long userId, Long requestId) {
         Request request = getById(requestId);
         userService.getById(userId);
-        request.setStatus(Status.REJECTED);
+        request.setStatus(Status.CANCELED);
         return RequestMapper.toRequestDto(request);
     }
 
