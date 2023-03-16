@@ -41,7 +41,9 @@ public class EventMapper {
         if (category != null) {
             event.setCategory(category);
         }
-        if (StateAction.valueOf(eventDtoInput.getStateAction()).equals(StateAction.CANCEL_REVIEW)) {
+        event.setState(eventDtoInput.getState());
+        if (eventDtoInput.getStateAction() != null
+                && StateAction.valueOf(eventDtoInput.getStateAction()).equals(StateAction.CANCEL_REVIEW)) {
             event.setState(State.CANCELED);
         }
         return event;
