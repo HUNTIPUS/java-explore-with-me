@@ -82,9 +82,8 @@ public class EventServiceImpl implements EventService {
         if (eventDtoInput.getStateAction() != null
                 && eventDtoInput.getStateAction().equals(StateAction.SEND_TO_REVIEW.name())) {
             event.setState(State.PENDING);
-        } else if (eventDtoInput.getStateAction() != null
-                && !eventDtoInput.getStateAction().equals(StateAction.SEND_TO_REVIEW.name())
-                && !eventDtoInput.getStateAction().equals(StateAction.CANCEL_REVIEW.name())) {
+        }
+        if (eventDtoInput.getStateAction() == null && event.getState().equals(State.PUBLISHED)) {
             throw new StatusException(String.format("Event has state %s", event.getState()));
         }
         if (eventDtoInput.getLocation() != null) {
