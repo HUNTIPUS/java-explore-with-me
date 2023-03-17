@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StatsMapper {
 
-
     public static Stats toStats(StatsDtoInput statsDtoInput) {
         Stats stats = new Stats();
         stats.setApp(statsDtoInput.getApp());

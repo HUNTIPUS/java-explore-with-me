@@ -17,7 +17,7 @@ public class Stats {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    Long id;
     String app;
     String uri;
     String ip;
