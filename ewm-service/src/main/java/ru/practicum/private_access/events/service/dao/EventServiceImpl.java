@@ -53,7 +53,6 @@ public class EventServiceImpl implements EventService {
     CategoryService categoryService;
     RequestRepository requestRepository;
     StatsService statsService;
-
     LocationService locationService;
 
     public static final String APP = "ewm-service";
