@@ -116,22 +116,33 @@ public class CompilationServiceImpl implements CompilationService {
     public List<CompilationDtoOutput> getByParams(Boolean pinned, Integer from, Integer size) {
         List<CompilationDtoOutput> compilationDtoOutputList = new ArrayList<>();
         Map<Compilation, List<CompilationEvent>> compilationEvents;
+        //System.out.println(compilationRepository.findAll());
         List<Compilation> compilations;
         if (pinned != null) {
             compilationEvents = compilationEventRepository.getAllByCompilationPinned(pinned,
                             PageRequest.of(from > 0 ? from / size : 0, size))
                     .stream()
                     .collect(groupingBy(CompilationEvent::getCompilation));
-            compilations = compilationRepository.getCompilationByParam(pinned,
-                    new ArrayList<>(compilationEvents.keySet()),
-                    PageRequest.of(from > 0 ? from / size : 0, size));
+            if (new ArrayList<>(compilationEvents.keySet()).isEmpty()) {
+                compilations = compilationRepository.getCompilationByParamWithPinned(pinned,
+                        PageRequest.of(from > 0 ? from / size : 0, size));
+            } else {
+                compilations = compilationRepository.getCompilationByParam(pinned,
+                        new ArrayList<>(compilationEvents.keySet()),
+                        PageRequest.of(from > 0 ? from / size : 0, size));
+            }
         } else {
             compilationEvents = compilationEventRepository.findAll(PageRequest.of(from > 0 ? from / size : 0, size,
                             Sort.by("id")))
                     .stream()
                     .collect(groupingBy(CompilationEvent::getCompilation));
-            compilations = compilationRepository.getCompilationWithoutParam(new ArrayList<>(compilationEvents.keySet()),
-                    PageRequest.of(from > 0 ? from / size : 0, size));
+            if (new ArrayList<>(compilationEvents.keySet()).isEmpty()) {
+                compilations = compilationRepository.findAll(PageRequest.of(from > 0 ? from / size : 0, size)).toList();
+            } else {
+                compilations = compilationRepository.getCompilationWithoutParam(new ArrayList<>(compilationEvents
+                                .keySet()),
+                        PageRequest.of(from > 0 ? from / size : 0, size));
+            }
         }
         for (Compilation compilation : compilations) {
             compilationDtoOutputList.add(appendEventToCompilation(CompilationMapper.toCompilationDtoOutput(compilation),

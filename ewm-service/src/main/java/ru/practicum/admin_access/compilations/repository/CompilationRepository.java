@@ -16,4 +16,8 @@ public interface CompilationRepository extends JpaRepository<Compilation, Long> 
 
     @Query("select c from Compilation c where c not in :compilations")
     List<Compilation> getCompilationWithoutParam(List<Compilation> compilations, Pageable pageable);
+
+    @Query("select c from Compilation c where c.pinned = :pinned")
+    List<Compilation> getCompilationByParamWithPinned(Boolean pinned, Pageable pageable);
+
 }
