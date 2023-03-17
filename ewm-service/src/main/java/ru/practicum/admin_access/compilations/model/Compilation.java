@@ -4,8 +4,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.private_access.events.model.Event;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "compilations")
@@ -19,4 +22,6 @@ public class Compilation {
     Long id;
     String title;
     Boolean pinned;
+    @Transient
+    List<Event> events = new ArrayList<>();
 }
