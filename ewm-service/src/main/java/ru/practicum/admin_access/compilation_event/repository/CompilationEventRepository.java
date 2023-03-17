@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.admin_access.compilation_event.model.CompilationEvent;
-import ru.practicum.admin_access.compilations.model.Compilation;
 
 import java.util.List;
 

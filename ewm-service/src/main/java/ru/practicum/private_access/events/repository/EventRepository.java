@@ -4,7 +4,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import ru.practicum.admin_access.compilations.model.Compilation;
 import ru.practicum.private_access.events.model.Event;
 import ru.practicum.private_access.events.state.State;
 

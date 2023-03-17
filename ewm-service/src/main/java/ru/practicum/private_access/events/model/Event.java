@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.admin_access.categories.model.Category;
-import ru.practicum.admin_access.compilations.model.Compilation;
 import ru.practicum.admin_access.users.model.User;
 import ru.practicum.private_access.events.location.model.Location;
 import ru.practicum.private_access.events.state.State;
