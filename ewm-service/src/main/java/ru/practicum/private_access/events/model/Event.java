@@ -42,9 +42,6 @@ public class Event {
     @JoinColumn(name = "id_category", nullable = false)
     Category category;
     @ManyToOne
-    @JoinColumn(name = "id_compilation")
-    Compilation compilation;
-    @ManyToOne
     @JoinColumns({
             @JoinColumn(name = "lat"),
             @JoinColumn(name = "lon")

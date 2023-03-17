@@ -2,8 +2,11 @@ package ru.practicum.admin_access.compilations.service.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.admin_access.compilation_event.model.CompilationEvent;
+import ru.practicum.admin_access.compilation_event.repository.CompilationEventRepository;
 import ru.practicum.admin_access.compilations.dto.CompilationDtoInput;
 import ru.practicum.admin_access.compilations.dto.CompilationDtoOutput;
 import ru.practicum.admin_access.compilations.mapper.CompilationMapper;
@@ -28,8 +31,9 @@ import static java.util.stream.Collectors.toList;
 public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
+    private final CompilationEventRepository compilationEventRepository;
     private final EventRepository eventRepository;
-    private final EventService service;
+    private final EventService eventService;
 
     @Transactional
     @Override
@@ -39,12 +43,15 @@ public class CompilationServiceImpl implements CompilationService {
         CompilationDtoOutput compilationDtoOutput = CompilationMapper.toCompilationDtoOutput(compilation);
         if (compilationDtoInput.getEvents() != null && !compilationDtoInput.getEvents().isEmpty()) {
             List<Event> events = eventRepository.findAllById(compilationDtoInput.getEvents());
+            CompilationEvent compilationEvent = new CompilationEvent();
+            compilationEvent.setCompilation(compilation);
             for (Event event : events) {
-                event.setCompilation(compilation);
+                compilationEvent.setEvent(event);
+                compilationEventRepository.save(compilationEvent);
             }
-            appendEventToCompilation(compilationDtoOutput, events);
+            return appendEventToCompilation(compilationDtoOutput, events);
         }
-        return compilationDtoOutput;
+        return appendEventToCompilation(compilationDtoOutput, List.of());
     }
 
     @Transactional
@@ -57,15 +64,23 @@ public class CompilationServiceImpl implements CompilationService {
                 CompilationMapper.toCompilation(compilationDtoInput));
         CompilationDtoOutput compilationDtoOutput = CompilationMapper.toCompilationDtoOutput(compilation);
         if (!compilationDtoInput.getEvents().isEmpty()) {
-            List<Event> oldEvents = eventRepository.getByCompilation(id);
+            List<CompilationEvent> oldCompilationEvent = compilationEventRepository.getByCompilation(id);
             List<Event> newEvents = eventRepository.findAllById(compilationDtoInput.getEvents());
-            if (!oldEvents.isEmpty()) {
-                for (Event event : oldEvents) {
-                    event.setCompilation(null);
+            CompilationEvent compilationEventNew = new CompilationEvent();
+            compilationEventNew.setCompilation(compilation);
+            if (!oldCompilationEvent.isEmpty()) {
+                for (CompilationEvent compilationEvent : oldCompilationEvent) {
+                    compilationEventRepository.deleteByCompilationAndEvent(compilationEvent
+                            .getCompilation().getId(), compilationEvent.getEvent().getId());
+                }
+                for (Event event : newEvents) {
+                    compilationEventNew.setEvent(event);
+                    compilationEventRepository.save(compilationEventNew);
                 }
             } else {
                 for (Event event : newEvents) {
-                    event.setCompilation(compilation);
+                    compilationEventNew.setEvent(event);
+                    compilationEventRepository.save(compilationEventNew);
                 }
             }
             appendEventToCompilation(compilationDtoOutput, newEvents);
@@ -77,11 +92,10 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public void delete(Long id) {
         getById(id);
-        List<Event> events = eventRepository.getByCompilation(id);
-        if (!events.isEmpty()) {
-            for (Event event : events) {
-                event.setCompilation(null);
-            }
+        List<CompilationEvent> oldCompilationEvent = compilationEventRepository.getByCompilation(id);
+        for (CompilationEvent compilationEvent : oldCompilationEvent) {
+            compilationEventRepository.deleteByCompilationAndEvent(compilationEvent
+                    .getCompilation().getId(), compilationEvent.getEvent().getId());
         }
         compilationRepository.deleteById(id);
     }
@@ -92,30 +106,50 @@ public class CompilationServiceImpl implements CompilationService {
                 .orElseThrow(() -> new ObjectExistenceException(String
                         .format("Compilation with id=%s was not found", id)));
         return appendEventToCompilation(CompilationMapper.toCompilationDtoOutput(compilation),
-                eventRepository.getByCompilation(id));
+                compilationEventRepository.getByCompilation(id)
+                        .stream()
+                        .map(CompilationEvent::getEvent)
+                        .collect(toList()));
     }
 
     @Override
     public List<CompilationDtoOutput> getByParams(Boolean pinned, Integer from, Integer size) {
         List<CompilationDtoOutput> compilationDtoOutputList = new ArrayList<>();
-        Map<Compilation, List<Event>> compilations = getEventsByCompilations(compilationRepository
-                .getCompilationByParam(pinned, PageRequest.of(from > 0 ? from / size : 0, size)));
-        for (Compilation compilation : compilations.keySet()) {
-            compilationDtoOutputList.add(appendEventToCompilation(CompilationMapper
-                    .toCompilationDtoOutput(compilation), compilations.get(compilation)));
+        Map<Compilation, List<CompilationEvent>> compilationEvents;
+        List<Compilation> compilations;
+        if (pinned != null) {
+            compilationEvents = compilationEventRepository.getAllByCompilationPinned(pinned,
+                            PageRequest.of(from > 0 ? from / size : 0, size))
+                    .stream()
+                    .collect(groupingBy(CompilationEvent::getCompilation));
+            compilations = compilationRepository.getCompilationByParam(pinned,
+                    new ArrayList<>(compilationEvents.keySet()),
+                    PageRequest.of(from > 0 ? from / size : 0, size));
+        } else {
+            compilationEvents = compilationEventRepository.findAll(PageRequest.of(from > 0 ? from / size : 0, size,
+                            Sort.by("id")))
+                    .stream()
+                    .collect(groupingBy(CompilationEvent::getCompilation));
+            compilations = compilationRepository.getCompilationWithoutParam(new ArrayList<>(compilationEvents.keySet()),
+                    PageRequest.of(from > 0 ? from / size : 0, size));
+        }
+        for (Compilation compilation : compilations) {
+            compilationDtoOutputList.add(appendEventToCompilation(CompilationMapper.toCompilationDtoOutput(compilation),
+                    List.of()));
+        }
+        for (Compilation compilation : compilationEvents.keySet()) {
+            compilationDtoOutputList.add(appendEventToCompilation(CompilationMapper.toCompilationDtoOutput(compilation),
+                    compilationEvents.get(compilation)
+                            .stream()
+                            .map(CompilationEvent::getEvent)
+                            .collect(toList())));
         }
         return compilationDtoOutputList;
     }
 
-    private Map<Compilation, List<Event>> getEventsByCompilations(List<Compilation> compilations) {
-        return eventRepository.getEventByCompilation(compilations)
-                .stream()
-                .collect(groupingBy(Event::getCompilation, toList()));
-    }
-
     private CompilationDtoOutput appendEventToCompilation(CompilationDtoOutput compilationDtoOutput,
                                                           List<Event> events) {
-        compilationDtoOutput.setEvents(service.getEventShortDtoOutput(events));
+        compilationDtoOutput.setEvents(eventService.getEventShortDtoOutput(events));
         return compilationDtoOutput;
     }
 

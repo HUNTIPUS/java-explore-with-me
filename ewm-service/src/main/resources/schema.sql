@@ -3,6 +3,7 @@ drop table if exists categories cascade;
 drop table if exists compilations cascade;
 drop table if exists location cascade;
 drop table if exists events cascade;
+drop table if exists compilations_events cascade;
 drop table if exists requests cascade;
 
 create table if not exists users
@@ -40,7 +41,6 @@ create table if not exists events
     id bigint generated always as identity primary key,
     id_user bigint,
     id_category bigint,
-    id_compilation bigint,
     lat float,
     lon float,
     annotation varchar(2000),
@@ -55,8 +55,16 @@ create table if not exists events
     published_on timestamp,
     constraint fk_events_to_users foreign key (id_user) references users (id),
     constraint fk_events_to_category foreign key (id_category) references categories (id),
-    constraint fk_events_to_compilation foreign key (id_compilation) references compilations (id),
     constraint fk_events_to_location foreign key (lat, lon) references location (lat, lon)
+);
+
+create table if not exists compilations_events
+(
+    id bigint generated always as identity primary key,
+    id_event bigint,
+    id_compilation bigint,
+    constraint fk_to_compilation foreign key (id_compilation) references compilations (id),
+    constraint fk_to_events foreign key (id_event) references events (id)
 );
 
 create table if not exists requests

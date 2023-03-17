@@ -319,9 +319,6 @@ public class EventServiceImpl implements EventService {
         if (newEvent.getCategory() != null) {
             event.setCategory(newEvent.getCategory());
         }
-        if (newEvent.getCompilation() != null) {
-            event.setCompilation(newEvent.getCompilation());
-        }
         if (newEvent.getState() != null) {
             if (event.getState().equals(State.PUBLISHED) && newEvent.getState().equals(State.PUBLISHED)
                     || event.getState().equals(State.CANCELED) && newEvent.getState().equals(State.CANCELED)) {
