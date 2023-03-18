@@ -280,8 +280,8 @@ public class EventServiceImpl implements EventService {
     }
 
     private Map<String, Long> getView(List<String> uris) {
-        List<StatsDtoOutput> stats = statsService.getStats(LocalDateTime.MIN,
-                LocalDateTime.now().withNano(0), uris, false);
+        List<StatsDtoOutput> stats = statsService.getStats(LocalDateTime.now().withNano(0).minusYears(10),
+                LocalDateTime.now().withNano(0).plusYears(10), uris, false);
         return stats.stream().collect(groupingBy(StatsDtoOutput::getUri, counting()));
     }
 
