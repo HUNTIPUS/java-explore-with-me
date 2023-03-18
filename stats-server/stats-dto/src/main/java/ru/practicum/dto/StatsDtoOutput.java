@@ -13,5 +13,5 @@ public class StatsDtoOutput {
 
     String app;
     String uri;
-    long hits;
+    Long hits;
 }

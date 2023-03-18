@@ -36,27 +36,29 @@ public class CustomDaoImpl implements CustomDao {
             statsStorage = jdbcTemplate.query(sql, parameters, CustomDaoImpl::makeToStats);
         } else {
             String sql;
-            parameters = new MapSqlParameterSource()
-                    .addValue("start", start)
-                    .addValue("end", end);
             StringBuilder newUri = new StringBuilder();
             for (int i = 0; i < uris.size(); i++) {
                 newUri.append("'%");
                 newUri.append(uris.get(i));
                 newUri.append("%'");
                 if (i != uris.size() - 1) {
-                    newUri.append(" or like ");
+                    newUri.append(" or uri like ");
                 }
             }
 
+            parameters = new MapSqlParameterSource()
+                    .addValue("start", start)
+                    .addValue("end", end)
+                    .addValue("newUri", newUri);
+
             if (!unique) {
                 sql = "select app, uri, count(ip) hits from stats " +
-                        "where time_stamp between :start and :end and uri like " + newUri +
-                        " group by app, uri order by hits desc";
+                        "where time_stamp between :start and :end and (uri like   " + newUri +
+                        ") group by app, uri order by hits desc";
             } else {
                 sql = "select app, uri, count(distinct ip) hits from stats " +
-                        "where time_stamp between :start and :end and uri like " + newUri +
-                        " group by app, uri order by hits desc";
+                        "where time_stamp between :start and :end and (uri like " + newUri +
+                        ") group by app, uri order by hits desc";
             }
             statsStorage = jdbcTemplate.query(sql, parameters, CustomDaoImpl::makeToStats);
         }
