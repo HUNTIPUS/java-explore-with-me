@@ -55,7 +55,7 @@ public class EventServiceImpl implements EventService {
     StatsService statsService;
     LocationService locationService;
 
-    public static final String APP = "ewm-service";
+    public static final String APP = "ewm-main-service";
 
     @Transactional
     @Override
