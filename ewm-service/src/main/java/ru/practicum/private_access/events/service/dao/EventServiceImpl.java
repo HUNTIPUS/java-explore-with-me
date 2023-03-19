@@ -12,8 +12,8 @@ import ru.practicum.admin_access.categories.service.dal.CategoryService;
 import ru.practicum.admin_access.events.state_action.StateAction;
 import ru.practicum.admin_access.users.model.User;
 import ru.practicum.admin_access.users.service.dal.UserService;
+import ru.practicum.client.StatsClient;
 import ru.practicum.dto.StatsDtoInput;
-import ru.practicum.dto.StatsDtoOutput;
 import ru.practicum.exceptions.exception.DuplicateException;
 import ru.practicum.exceptions.exception.StatusException;
 import ru.practicum.exceptions.exception.TimeException;
@@ -30,7 +30,6 @@ import ru.practicum.private_access.events.state.State;
 import ru.practicum.private_access.requests.model.Request;
 import ru.practicum.private_access.requests.repository.RequestRepository;
 import ru.practicum.public_access.events.sort.Sort;
-import ru.practicum.service.dal.StatsService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -52,8 +51,8 @@ public class EventServiceImpl implements EventService {
     UserService userService;
     CategoryService categoryService;
     RequestRepository requestRepository;
-    StatsService statsService;
     LocationService locationService;
+    StatsClient client;
 
     public static final String APP = "ewm-main-service";
 
@@ -201,7 +200,7 @@ public class EventServiceImpl implements EventService {
         String uri = request.getRequestURI();
         StatsDtoInput statsDtoInput = new StatsDtoInput(APP, uri, request.getRemoteAddr(),
                 LocalDateTime.now().withNano(0));
-        statsService.hit(statsDtoInput);
+        client.hit(statsDtoInput);
         List<String> uris = new ArrayList<>();
         uris.add(uri);
         List<Event> events = new ArrayList<>();
@@ -255,7 +254,7 @@ public class EventServiceImpl implements EventService {
         }
         for (Event event : events) {
             String uri = String.format("/events/%s", event.getId());
-            statsService.hit(new StatsDtoInput(APP, uri, request.getRemoteAddr(),
+            client.hit(new StatsDtoInput(APP, uri, request.getRemoteAddr(),
                     LocalDateTime.now().withNano(0)));
         }
         return getEventShortDtoOutput(events);
@@ -280,9 +279,8 @@ public class EventServiceImpl implements EventService {
     }
 
     private Map<String, Long> getView(List<String> uris) {
-        List<StatsDtoOutput> stats = statsService.getStats(LocalDateTime.now().withNano(0).minusYears(10),
+        return client.getStats(LocalDateTime.now().withNano(0).minusYears(10),
                 LocalDateTime.now().withNano(0).plusYears(10), uris, false);
-        return stats.stream().collect(groupingBy(StatsDtoOutput::getUri, counting()));
     }
 
     private List<Long> getIdCategories() {
