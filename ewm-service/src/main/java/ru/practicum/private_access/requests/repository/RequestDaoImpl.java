@@ -1,7 +1,6 @@
 package ru.practicum.private_access.requests.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -11,8 +10,6 @@ import ru.practicum.private_access.events.model.Event;
 import ru.practicum.private_access.requests.Status.Status;
 import ru.practicum.private_access.requests.model.Request;
 
-import java.math.BigDecimal;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
