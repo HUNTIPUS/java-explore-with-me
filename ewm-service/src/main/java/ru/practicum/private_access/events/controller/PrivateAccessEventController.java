@@ -6,12 +6,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.private_access.events.dto.EventDtoInput;
+import ru.practicum.private_access.events.dto.EventDtoInputUpdate;
 import ru.practicum.private_access.events.dto.EventDtoOutput;
 import ru.practicum.private_access.events.dto.EventShortDtoOutput;
 import ru.practicum.private_access.events.service.dal.EventService;
 import ru.practicum.valid.Create;
+import ru.practicum.valid.Update;
 
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -32,7 +35,7 @@ public class PrivateAccessEventController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventDtoOutput update(@RequestBody EventDtoInput eventDtoInput,
+    public EventDtoOutput update(@RequestBody @Validated(Update.class) EventDtoInputUpdate eventDtoInput,
                                  @PathVariable @Positive Long userId,
                                  @PathVariable @Positive Long eventId) {
         log.info("update event with id={}", eventId);
@@ -41,8 +44,8 @@ public class PrivateAccessEventController {
 
     @GetMapping
     public List<EventShortDtoOutput> getAll(@PathVariable @Positive Long userId,
-                                            @RequestParam(defaultValue = "0") Integer from,
-                                            @RequestParam(defaultValue = "10") Integer size) {
+                                            @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                            @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("get all from={} and size={} events by initiator with id={}", from, size, userId);
         return service.getAll(userId, from, size);
     }

@@ -1,6 +1,7 @@
 package ru.practicum.private_access.requests.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -10,9 +11,13 @@ import ru.practicum.private_access.events.model.Event;
 import ru.practicum.private_access.requests.Status.Status;
 import ru.practicum.private_access.requests.model.Request;
 
+import java.math.BigDecimal;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Repository
@@ -32,12 +37,17 @@ public class RequestDaoImpl implements RequestDao {
     @Override
     public List<Request> updateRequests(List<Long> ids, String status) {
         String sql = "update requests set status = :status where id = :id";
+        Map<String, Object>[] batchOfInputs = new HashMap[ids.size()];
+        int count = 0;
         for (Long id : ids) {
-            SqlParameterSource paramForUpdate = new MapSqlParameterSource()
-                    .addValue("id", id)
-                    .addValue("status", status);
-            jdbcTemplate.update(sql, paramForUpdate);
+            Map<String, Object> map = new HashMap();
+            map.put("id", id);
+            map.put("status", status);
+            batchOfInputs[count++] = map;
         }
+        System.out.println(batchOfInputs);
+        jdbcTemplate.batchUpdate(sql, batchOfInputs);
+
         SqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("ids", ids);
         String sqlGet = "select * from requests r join events e on e.id = r.id_event " +

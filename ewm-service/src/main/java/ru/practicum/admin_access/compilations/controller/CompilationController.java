@@ -9,6 +9,7 @@ import ru.practicum.admin_access.compilations.dto.CompilationDtoInput;
 import ru.practicum.admin_access.compilations.dto.CompilationDtoOutput;
 import ru.practicum.admin_access.compilations.service.dal.CompilationService;
 import ru.practicum.valid.Create;
+import ru.practicum.valid.Update;
 
 import javax.validation.constraints.Positive;
 
@@ -30,7 +31,7 @@ public class CompilationController {
 
     @PatchMapping("/{id}")
     public CompilationDtoOutput update(@PathVariable @Positive Long id,
-                                       @RequestBody CompilationDtoInput compilationDtoInput) {
+                                       @RequestBody @Validated(Update.class) CompilationDtoInput compilationDtoInput) {
         log.info("update compilation with id={}", id);
         return service.update(id, compilationDtoInput);
     }

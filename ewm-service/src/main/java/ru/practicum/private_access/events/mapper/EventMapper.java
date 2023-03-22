@@ -7,17 +7,13 @@ import ru.practicum.admin_access.categories.model.Category;
 import ru.practicum.admin_access.events.state_action.StateAction;
 import ru.practicum.admin_access.users.mapper.UserMapper;
 import ru.practicum.admin_access.users.model.User;
-import ru.practicum.private_access.events.dto.EventDtoForAdminInput;
-import ru.practicum.private_access.events.dto.EventDtoInput;
-import ru.practicum.private_access.events.dto.EventDtoOutput;
-import ru.practicum.private_access.events.dto.EventShortDtoOutput;
+import ru.practicum.private_access.events.dto.*;
 import ru.practicum.private_access.events.location.mapper.LocationMapper;
 import ru.practicum.private_access.events.model.Event;
 import ru.practicum.private_access.events.state.State;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class EventMapper {
@@ -29,7 +25,7 @@ public class EventMapper {
         event.setAnnotation(eventDtoInput.getAnnotation());
         event.setTitle(eventDtoInput.getTitle());
         event.setDescription(eventDtoInput.getDescription());
-        event.setCreatedOn(eventDtoInput.getCreatedOn());
+        event.setCreatedOn(LocalDateTime.now());
         event.setEventDate(eventDtoInput.getEventDate());
         event.setParticipantLimit(eventDtoInput.getParticipantLimit());
         event.setPaid(eventDtoInput.getPaid());
@@ -40,6 +36,27 @@ public class EventMapper {
         event.setUser(user);
         if (category != null) {
             event.setCategory(category);
+        }
+        event.setState(eventDtoInput.getState());
+        return event;
+    }
+
+    public static Event toEvent(EventDtoInputUpdate eventDtoInput, User user, Category category) {
+        Event event = new Event();
+        event.setAnnotation(eventDtoInput.getAnnotation());
+        event.setDescription(eventDtoInput.getDescription());
+        event.setTitle(eventDtoInput.getTitle());
+        event.setCreatedOn(LocalDateTime.now());
+        event.setParticipantLimit(eventDtoInput.getParticipantLimit());
+        event.setEventDate(eventDtoInput.getEventDate());
+        event.setPaid(eventDtoInput.getPaid());
+        event.setRequestModeration(eventDtoInput.getRequestModeration());
+        event.setUser(user);
+        if (category != null) {
+            event.setCategory(category);
+        }
+        if (eventDtoInput.getLocation() != null) {
+            event.setLocation(LocationMapper.toLocation(eventDtoInput.getLocation()));
         }
         event.setState(eventDtoInput.getState());
         if (eventDtoInput.getStateAction() != null
@@ -60,9 +77,6 @@ public class EventMapper {
         if (eventDto.getDescription() != null && !eventDto.getDescription().isBlank()) {
             event.setDescription(eventDto.getDescription());
         }
-        if (eventDto.getParticipantLimit() != null) {
-            event.setParticipantLimit(eventDto.getParticipantLimit());
-        }
         if (eventDto.getEventDate() != null) {
             event.setEventDate(eventDto.getEventDate());
         }
@@ -72,6 +86,7 @@ public class EventMapper {
         if (eventDto.getRequestModeration() != null) {
             event.setRequestModeration(eventDto.getRequestModeration());
         }
+        event.setParticipantLimit(eventDto.getParticipantLimit());
         if (category != null) {
             event.setCategory(category);
         }
@@ -80,7 +95,7 @@ public class EventMapper {
         }
         if (StateAction.valueOf(eventDto.getStateAction()).equals(StateAction.PUBLISH_EVENT)) {
             event.setState(State.PUBLISHED);
-            event.setPublishedOn(eventDto.getPublishedOn());
+            event.setPublishedOn(LocalDateTime.now().withNano(0));
         } else if (StateAction.valueOf(eventDto.getStateAction()).equals(StateAction.CANCEL_REVIEW)) {
             event.setState(State.CANCELED);
         } else if (StateAction.valueOf(eventDto.getStateAction()).equals(StateAction.REJECT_EVENT)) {
@@ -140,12 +155,5 @@ public class EventMapper {
                 .confirmedRequests(0)
                 .views(0L)
                 .build();
-    }
-
-    public static List<EventShortDtoOutput> toEventShortDtoOutputList(List<Event> events) {
-        return events
-                .stream()
-                .map(EventMapper::toEventShortDtoOutput)
-                .collect(Collectors.toList());
     }
 }

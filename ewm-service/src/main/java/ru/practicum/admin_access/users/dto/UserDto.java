@@ -6,6 +6,7 @@ import ru.practicum.valid.Create;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 
@@ -18,7 +19,7 @@ import javax.validation.constraints.NotNull;
 public class UserDto {
     Long id;
     @Email(groups = {Create.class})
-    @NotNull(groups = {Create.class})
+    @NotEmpty(groups = {Create.class})
     String email;
     @NotBlank(groups = {Create.class})
     String name;

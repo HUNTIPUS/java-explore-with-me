@@ -63,7 +63,7 @@ public class RequestServiceImpl implements RequestService {
                 request.setCreated(LocalDateTime.now().withNano(0));
                 return RequestMapper.toRequestDto(repository.save(request));
             } else {
-                throw new  AccessException(String.format("All seats for the event with id=%s are occupied.", eventId));
+                throw new AccessException(String.format("All seats for the event with id=%s are occupied.", eventId));
             }
         } else {
             throw new AccessException("Event is not published");
@@ -100,9 +100,8 @@ public class RequestServiceImpl implements RequestService {
     public RequestsForStatusDtoOutput update(Long userId, Long eventId, RequestsForStatusDtoInput requestDto) {
         userService.getById(userId);
         eventService.getById(eventId);
-        Status statusFromRequest = Status.valueOf(requestDto.getStatus());
         List<Request> requests = repository.getSelectedRequest(userId, eventId, requestDto.getRequestIds());
-        for (Request request: requests) {
+        for (Request request : requests) {
             if (!request.getStatus().equals(Status.PENDING)) {
                 throw new StatusException(String.format("Request with id=%s has status is %s", request.getId(),
                         request.getStatus()));
@@ -111,10 +110,10 @@ public class RequestServiceImpl implements RequestService {
         List<Long> remainingRequests = repository.getRemainingRequest(userId, eventId, requestDto.getRequestIds())
                 .stream().map(Request::getId).collect(Collectors.toList());
         List<Request> selectedRequestsNew = repository.updateRequests(requestDto.getRequestIds(),
-                statusFromRequest.name());
-        Status status = Status.CONFIRMED;
-        if (statusFromRequest.equals(status)) {
-            status = Status.REJECTED;
+                requestDto.getStatus().name());
+        RequestsForStatusDtoInput.Status status = RequestsForStatusDtoInput.Status.CONFIRMED;
+        if (requestDto.getStatus().equals(status)) {
+            status = RequestsForStatusDtoInput.Status.REJECTED;
         }
         List<Request> remainingRequestsNew;
         if (!remainingRequests.isEmpty()) {
@@ -122,7 +121,7 @@ public class RequestServiceImpl implements RequestService {
         } else {
             remainingRequestsNew = List.of();
         }
-        if (statusFromRequest.equals(Status.CONFIRMED)) {
+        if (requestDto.getStatus().equals(RequestsForStatusDtoInput.Status.CONFIRMED)) {
             return RequestsForStatusDtoOutput
                     .builder()
                     .confirmedRequests(RequestMapper.toRequestDtoList(selectedRequestsNew))

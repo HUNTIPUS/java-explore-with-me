@@ -1,5 +1,6 @@
 package ru.practicum.private_access.events.service.dao;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,26 +18,25 @@ import ru.practicum.dto.StatsDtoInput;
 import ru.practicum.exceptions.exception.DuplicateException;
 import ru.practicum.exceptions.exception.StatusException;
 import ru.practicum.exceptions.exception.TimeException;
-import ru.practicum.private_access.events.dto.EventDtoForAdminInput;
-import ru.practicum.private_access.events.dto.EventDtoInput;
-import ru.practicum.private_access.events.dto.EventDtoOutput;
-import ru.practicum.private_access.events.dto.EventShortDtoOutput;
+import ru.practicum.private_access.events.dto.*;
 import ru.practicum.private_access.events.location.service.dal.LocationService;
 import ru.practicum.private_access.events.mapper.EventMapper;
 import ru.practicum.private_access.events.model.Event;
+import ru.practicum.private_access.events.model.QEvent;
 import ru.practicum.private_access.events.repository.EventRepository;
 import ru.practicum.private_access.events.service.dal.EventService;
 import ru.practicum.private_access.events.state.State;
+import ru.practicum.private_access.requests.model.QRequest;
 import ru.practicum.private_access.requests.model.Request;
 import ru.practicum.private_access.requests.repository.RequestRepository;
 import ru.practicum.public_access.events.sort.Sort;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -53,6 +53,8 @@ public class EventServiceImpl implements EventService {
     RequestRepository requestRepository;
     LocationService locationService;
     StatsClient client;
+    @PersistenceContext
+    EntityManager entityManager;
 
     public static final String APP = "ewm-main-service";
 
@@ -70,7 +72,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventDtoOutput update(Long userId, Long eventId, EventDtoInput eventDtoInput) {
+    public EventDtoOutput update(Long userId, Long eventId, EventDtoInputUpdate eventDtoInput) {
         Event event = getById(eventId);
         User user = userService.getById(userId);
         if (eventDtoInput.getEventDate() != null && !eventDtoInput.getEventDate().isAfter(LocalDateTime.now())) {
@@ -174,9 +176,18 @@ public class EventServiceImpl implements EventService {
         if (rangeEnd == null) {
             rangeEnd = LocalDateTime.now().withNano(0).plusYears(10);
         }
+
+        JPAQuery<Event> query = new JPAQuery<>(entityManager);
+        QEvent qEvent = QEvent.event;
         List<EventDtoOutput> eventDtoOutputList = new ArrayList<>();
-        List<Event> events = repository.getAllByParam(users, statesNew, categories, rangeStart, rangeEnd,
-                PageRequest.of(from > 0 ? from / size : 0, size));
+        List<Event> events = query.from(qEvent)
+                .where(qEvent.user.id.in(users)
+                        .and(qEvent.state.in(statesNew))
+                        .and(qEvent.category.id.in(categories))
+                        .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                        .and(qEvent.id.gt(from)))
+                .limit(size)
+                .fetch();
         Map<Event, Long> confirmedRequests = getCountConfirmedRequestsForEvent(events);
         List<String> uris = new ArrayList<>();
         for (Event event : events) {
@@ -201,8 +212,7 @@ public class EventServiceImpl implements EventService {
         StatsDtoInput statsDtoInput = new StatsDtoInput(APP, uri, request.getRemoteAddr(),
                 LocalDateTime.now().withNano(0));
         client.hit(statsDtoInput);
-        List<String> uris = new ArrayList<>();
-        uris.add(uri);
+        List<String> uris = List.of(uri);
         List<Event> events = new ArrayList<>();
         events.add(event);
         Map<String, Long> views = getView(uris);
@@ -228,28 +238,67 @@ public class EventServiceImpl implements EventService {
             rangeEnd = LocalDateTime.now().plusYears(10);
         }
 
+        JPAQuery<Event> query = new JPAQuery<>(entityManager);
+        QEvent qEvent = QEvent.event;
+        QRequest qRequest = QRequest.request;
         List<Event> events;
         if (text == null || text.isBlank()) {
             if (onlyAvailable) {
-                events = repository.getEventsWithoutTextWithAvailable(categories, paid, rangeStart,
-                        rangeEnd, PageRequest.of(from > 0 ? from / size : 0, size,
-                                org.springframework.data.domain
-                                        .Sort.by(org.springframework.data.domain
-                                                .Sort.Direction.DESC, sort.name().toLowerCase())));
+                events = query.from(qEvent)
+                        .where(qEvent.category.id.in(categories)
+                                .and(qEvent.paid.eq(paid))
+                                .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                .and(qEvent.id.goe(from))
+                                .and(qEvent.state.eq(State.PUBLISHED))
+                                .and(qEvent.participantLimit.gt(
+                                        query.select(qRequest.count()).from(qRequest)
+                                                .where(qRequest.event.id.eq(qEvent.id))
+                                )))
+                        .orderBy(qEvent.eventDate.desc())
+                        .limit(size)
+                        .fetch();
             } else {
-                events = repository.getEventsWithoutTextWithoutAvailable(categories, paid, rangeStart,
-                        rangeEnd, PageRequest.of(from > 0 ? from / size : 0, size));
+                events = query.from(qEvent)
+                        .where(qEvent.category.id.in(categories)
+                                .and(qEvent.paid.eq(paid))
+                                .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                .and(qEvent.id.goe(from))
+                                .and(qEvent.state.eq(State.PUBLISHED)))
+                        .orderBy(qEvent.eventDate.desc())
+                        .limit(size)
+                        .fetch();
             }
         } else {
             if (onlyAvailable) {
-                events = repository.getEventsByTextWithAvailable(text, categories, paid, rangeStart,
-                        rangeEnd, PageRequest.of(from > 0 ? from / size : 0, size,
-                                org.springframework.data.domain
-                                        .Sort.by(org.springframework.data.domain
-                                                .Sort.Direction.DESC, sort.name().toLowerCase())));
+                events = query.from(qEvent)
+                        .where(qEvent.category.id.in(categories)
+                                .and(qEvent.annotation.contains(text)
+                                        .or(qEvent.title.contains(text))
+                                        .or(qEvent.description.contains(text)))
+                                .and(qEvent.paid.eq(paid))
+                                .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                .and(qEvent.id.goe(from))
+                                .and(qEvent.state.eq(State.PUBLISHED))
+                                .and(qEvent.participantLimit.gt(
+                                        query.select(qRequest.count()).from(qRequest)
+                                                .where(qRequest.event.id.eq(qEvent.id))
+                                )))
+                        .orderBy(qEvent.eventDate.desc())
+                        .limit(size)
+                        .fetch();
             } else {
-                events = repository.getEventsByTextWithoutAvailable(text, categories, paid, rangeStart,
-                        rangeEnd, PageRequest.of(from > 0 ? from / size : 0, size));
+                events = query.from(qEvent)
+                        .where(qEvent.category.id.in(categories)
+                                .and(qEvent.annotation.contains(text)
+                                        .or(qEvent.title.contains(text))
+                                        .or(qEvent.description.contains(text)))
+                                .and(qEvent.paid.eq(paid))
+                                .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                .and(qEvent.id.goe(from))
+                                .and(qEvent.state.eq(State.PUBLISHED)))
+                        .orderBy(qEvent.eventDate.desc())
+                        .limit(size)
+                        .fetch();
             }
         }
         for (Event event : events) {
@@ -257,6 +306,14 @@ public class EventServiceImpl implements EventService {
             client.hit(new StatsDtoInput(APP, uri, request.getRemoteAddr(),
                     LocalDateTime.now().withNano(0)));
         }
+
+        if (sort != null && sort.equals(Sort.VIEWS)) {
+            return getEventShortDtoOutput(events)
+                    .stream()
+                    .sorted(Comparator.comparing(EventShortDtoOutput::getViews))
+                    .collect(Collectors.toList());
+        }
+
         return getEventShortDtoOutput(events);
     }
 

@@ -116,7 +116,6 @@ public class CompilationServiceImpl implements CompilationService {
     public List<CompilationDtoOutput> getByParams(Boolean pinned, Integer from, Integer size) {
         List<CompilationDtoOutput> compilationDtoOutputList = new ArrayList<>();
         Map<Compilation, List<CompilationEvent>> compilationEvents;
-        //System.out.println(compilationRepository.findAll());
         List<Compilation> compilations;
         if (pinned != null) {
             compilationEvents = compilationEventRepository.getAllByCompilationPinned(pinned,

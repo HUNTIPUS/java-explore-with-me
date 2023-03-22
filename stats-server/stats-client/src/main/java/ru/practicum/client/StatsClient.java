@@ -24,7 +24,8 @@ import static java.util.stream.Collectors.groupingBy;
 @Service
 public class StatsClient extends BaseClient {
 
-    public static final String FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     public StatsClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -45,8 +46,8 @@ public class StatsClient extends BaseClient {
                                       List<String> uris,
                                       Boolean unique) {
 
-        String startNew = start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        String endNew = end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String startNew = start.format(FORMATTER);
+        String endNew = end.format(FORMATTER);
 
         Map<String, Object> parameters = Map.of(
                 "start", startNew,
@@ -57,7 +58,6 @@ public class StatsClient extends BaseClient {
 
         ResponseEntity<Object> objects = get("/stats?start={start}&end={end}&uris={uris}&unique={unique}",
                 parameters);
-        ObjectMapper objectMapper = new ObjectMapper();
         List<StatsDtoOutput> stats = objectMapper.convertValue(objects.getBody(), new TypeReference<>() {
         });
         if (stats == null) {

@@ -27,5 +27,4 @@ public class EventDtoForAdminInput {
     Boolean paid;
     Boolean requestModeration;
     String stateAction;
-    LocalDateTime publishedOn = LocalDateTime.now().withNano(0);
 }

@@ -1,9 +1,6 @@
 package ru.practicum.private_access.events.service.dal;
 
-import ru.practicum.private_access.events.dto.EventDtoForAdminInput;
-import ru.practicum.private_access.events.dto.EventDtoInput;
-import ru.practicum.private_access.events.dto.EventDtoOutput;
-import ru.practicum.private_access.events.dto.EventShortDtoOutput;
+import ru.practicum.private_access.events.dto.*;
 import ru.practicum.private_access.events.model.Event;
 import ru.practicum.public_access.events.sort.Sort;
 
@@ -14,7 +11,7 @@ import java.util.List;
 public interface EventService {
     EventDtoOutput create(Long userId, EventDtoInput eventDtoInput);
 
-    EventDtoOutput update(Long userId, Long eventId, EventDtoInput eventDtoInput);
+    EventDtoOutput update(Long userId, Long eventId, EventDtoInputUpdate eventDtoInput);
 
     List<EventShortDtoOutput> getAll(Long userId, Integer from, Integer size);
 

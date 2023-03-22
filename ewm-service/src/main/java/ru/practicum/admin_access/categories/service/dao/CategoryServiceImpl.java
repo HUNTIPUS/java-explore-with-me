@@ -40,8 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     @Override
     public void delete(Long id) {
-        getById(id);
-        if (eventRepository.getByCategory(id).isEmpty()) {
+        if (!eventRepository.existsByCategory(getById(id))) {
             categoryRepository.deleteById(id);
         } else {
             throw new ConstraintForeignKeyException("The category is not empty");
