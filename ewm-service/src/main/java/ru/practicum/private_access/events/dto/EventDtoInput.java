@@ -37,7 +37,9 @@ public class EventDtoInput {
     LocalDateTime eventDate;
     @PositiveOrZero(groups = {Create.class})
     Integer participantLimit;
+    @NotNull(groups = {Create.class})
     Boolean paid;
+    @NotNull(groups = {Create.class})
     Boolean requestModeration;
     State state = State.PENDING;
 }
