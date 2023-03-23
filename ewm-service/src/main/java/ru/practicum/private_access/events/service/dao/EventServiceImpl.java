@@ -165,7 +165,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events;
         if (states != null) {
             List<State> statesNew = new ArrayList<>();
-            for (String state: states) {
+            for (String state : states) {
                 statesNew.add(State.valueOf(state));
             }
             events = query.from(qEvent)
@@ -238,61 +238,119 @@ public class EventServiceImpl implements EventService {
         List<Event> events;
         if (text == null || text.isBlank()) {
             if (onlyAvailable) {
-                events = query.from(qEvent)
-                        .where(qEvent.category.id.in(categories)
-                                .and(qEvent.paid.eq(paid))
-                                .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                .and(qEvent.id.goe(from))
-                                .and(qEvent.state.eq(State.PUBLISHED))
-                                .and(qEvent.participantLimit.gt(
-                                        query.select(qRequest.count()).from(qRequest)
-                                                .where(qRequest.event.id.eq(qEvent.id))
-                                )))
-                        .orderBy(qEvent.eventDate.desc())
-                        .limit(size)
-                        .fetch();
+                if (categories != null) {
+                    events = query.from(qEvent)
+                            .where(qEvent.category.id.in(categories)
+                                    .and(qEvent.paid.eq(paid))
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.goe(from))
+                                    .and(qEvent.state.eq(State.PUBLISHED))
+                                    .and(qEvent.participantLimit.gt(
+                                            query.select(qRequest.count()).from(qRequest)
+                                                    .where(qRequest.event.id.eq(qEvent.id))
+                                    )))
+                            .orderBy(qEvent.eventDate.desc())
+                            .limit(size)
+                            .fetch();
+                } else {
+                    events = query.from(qEvent)
+                            .where(qEvent.paid.eq(paid)
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.goe(from))
+                                    .and(qEvent.state.eq(State.PUBLISHED))
+                                    .and(qEvent.participantLimit.gt(
+                                            query.select(qRequest.count()).from(qRequest)
+                                                    .where(qRequest.event.id.eq(qEvent.id))
+                                    )))
+                            .orderBy(qEvent.eventDate.desc())
+                            .limit(size)
+                            .fetch();
+                }
             } else {
-                events = query.from(qEvent)
-                        .where(qEvent.category.id.in(categories)
-                                .and(qEvent.paid.eq(paid))
-                                .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                .and(qEvent.id.goe(from))
-                                .and(qEvent.state.eq(State.PUBLISHED)))
-                        .orderBy(qEvent.eventDate.desc())
-                        .limit(size)
-                        .fetch();
+                if (categories != null) {
+                    events = query.from(qEvent)
+                            .where(qEvent.category.id.in(categories)
+                                    .and(qEvent.paid.eq(paid))
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.goe(from))
+                                    .and(qEvent.state.eq(State.PUBLISHED)))
+                            .orderBy(qEvent.eventDate.desc())
+                            .limit(size)
+                            .fetch();
+                } else {
+                    events = query.from(qEvent)
+                            .where(qEvent.paid.eq(paid)
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.goe(from))
+                                    .and(qEvent.state.eq(State.PUBLISHED)))
+                            .orderBy(qEvent.eventDate.desc())
+                            .limit(size)
+                            .fetch();
+                }
             }
         } else {
             if (onlyAvailable) {
-                events = query.from(qEvent)
-                        .where(qEvent.category.id.in(categories)
-                                .and(qEvent.annotation.contains(text)
-                                        .or(qEvent.title.contains(text))
-                                        .or(qEvent.description.contains(text)))
-                                .and(qEvent.paid.eq(paid))
-                                .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                .and(qEvent.id.goe(from))
-                                .and(qEvent.state.eq(State.PUBLISHED))
-                                .and(qEvent.participantLimit.gt(
-                                        query.select(qRequest.count()).from(qRequest)
-                                                .where(qRequest.event.id.eq(qEvent.id))
-                                )))
-                        .orderBy(qEvent.eventDate.desc())
-                        .limit(size)
-                        .fetch();
+                if (categories != null) {
+                    events = query.from(qEvent)
+                            .where(qEvent.category.id.in(categories)
+                                    .and(qEvent.annotation.contains(text)
+                                            .or(qEvent.title.contains(text))
+                                            .or(qEvent.description.contains(text)))
+                                    .and(qEvent.paid.eq(paid))
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.goe(from))
+                                    .and(qEvent.state.eq(State.PUBLISHED))
+                                    .and(qEvent.participantLimit.gt(
+                                            query.select(qRequest.count()).from(qRequest)
+                                                    .where(qRequest.event.id.eq(qEvent.id))
+                                    )))
+                            .orderBy(qEvent.eventDate.desc())
+                            .limit(size)
+                            .fetch();
+                } else {
+                    events = query.from(qEvent)
+                            .where(qEvent.annotation.contains(text)
+                                    .or(qEvent.title.contains(text))
+                                    .or(qEvent.description.contains(text))
+                                    .and(qEvent.paid.eq(paid))
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.goe(from))
+                                    .and(qEvent.state.eq(State.PUBLISHED))
+                                    .and(qEvent.participantLimit.gt(
+                                            query.select(qRequest.count()).from(qRequest)
+                                                    .where(qRequest.event.id.eq(qEvent.id))
+                                    )))
+                            .orderBy(qEvent.eventDate.desc())
+                            .limit(size)
+                            .fetch();
+                }
             } else {
-                events = query.from(qEvent)
-                        .where(qEvent.category.id.in(categories)
-                                .and(qEvent.annotation.contains(text)
-                                        .or(qEvent.title.contains(text))
-                                        .or(qEvent.description.contains(text)))
-                                .and(qEvent.paid.eq(paid))
-                                .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                .and(qEvent.id.goe(from))
-                                .and(qEvent.state.eq(State.PUBLISHED)))
-                        .orderBy(qEvent.eventDate.desc())
-                        .limit(size)
-                        .fetch();
+                if (categories != null) {
+                    events = query.from(qEvent)
+                            .where(qEvent.category.id.in(categories)
+                                    .and(qEvent.annotation.contains(text)
+                                            .or(qEvent.title.contains(text))
+                                            .or(qEvent.description.contains(text)))
+                                    .and(qEvent.paid.eq(paid))
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.goe(from))
+                                    .and(qEvent.state.eq(State.PUBLISHED)))
+                            .orderBy(qEvent.eventDate.desc())
+                            .limit(size)
+                            .fetch();
+                } else {
+                    events = query.from(qEvent)
+                            .where(qEvent.annotation.contains(text)
+                                    .or(qEvent.title.contains(text))
+                                    .or(qEvent.description.contains(text))
+                                    .and(qEvent.paid.eq(paid))
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.goe(from))
+                                    .and(qEvent.state.eq(State.PUBLISHED)))
+                            .orderBy(qEvent.eventDate.desc())
+                            .limit(size)
+                            .fetch();
+                }
             }
         }
         for (Event event : events) {
