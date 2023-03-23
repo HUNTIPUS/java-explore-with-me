@@ -37,7 +37,7 @@ public class EventMapper {
         if (category != null) {
             event.setCategory(category);
         }
-        event.setState(eventDtoInput.getState());
+        event.setState(State.PENDING);
         return event;
     }
 
@@ -58,9 +58,9 @@ public class EventMapper {
         if (eventDtoInput.getLocation() != null) {
             event.setLocation(LocationMapper.toLocation(eventDtoInput.getLocation()));
         }
-        event.setState(eventDtoInput.getState());
+        event.setState(State.PENDING);
         if (eventDtoInput.getStateAction() != null
-                && StateAction.valueOf(eventDtoInput.getStateAction()).equals(StateAction.CANCEL_REVIEW)) {
+                && eventDtoInput.getStateAction().equals(EventDtoInputUpdate.StateAction.CANCEL_REVIEW)) {
             event.setState(State.CANCELED);
         }
         return event;
@@ -93,12 +93,12 @@ public class EventMapper {
         if (eventDto.getLocation() != null) {
             event.setLocation(LocationMapper.toLocation(eventDto.getLocation()));
         }
-        if (StateAction.valueOf(eventDto.getStateAction()).equals(StateAction.PUBLISH_EVENT)) {
+        if (eventDto.getStateAction().equals(EventDtoForAdminInput.StateAction.PUBLISH_EVENT)) {
             event.setState(State.PUBLISHED);
             event.setPublishedOn(LocalDateTime.now().withNano(0));
-        } else if (StateAction.valueOf(eventDto.getStateAction()).equals(StateAction.CANCEL_REVIEW)) {
+        } else if (eventDto.getStateAction().name().equals(StateAction.CANCEL_REVIEW.name())) {
             event.setState(State.CANCELED);
-        } else if (StateAction.valueOf(eventDto.getStateAction()).equals(StateAction.REJECT_EVENT)) {
+        } else if (eventDto.getStateAction().equals(EventDtoForAdminInput.StateAction.REJECT_EVENT)) {
             event.setState(State.CANCELED);
         }
         return event;

@@ -8,9 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.objenesis.ObjenesisException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.admin_access.categories.model.Category;
 import ru.practicum.admin_access.categories.service.dal.CategoryService;
-import ru.practicum.admin_access.events.state_action.StateAction;
 import ru.practicum.admin_access.users.model.User;
 import ru.practicum.admin_access.users.service.dal.UserService;
 import ru.practicum.client.StatsClient;
@@ -79,7 +77,7 @@ public class EventServiceImpl implements EventService {
             throw new TimeException("Event date not in the future.");
         }
         if (eventDtoInput.getStateAction() != null
-                && eventDtoInput.getStateAction().equals(StateAction.SEND_TO_REVIEW.name())) {
+                && eventDtoInput.getStateAction().equals(EventDtoInputUpdate.StateAction.SEND_TO_REVIEW)) {
             event.setState(State.PENDING);
         }
         if (eventDtoInput.getStateAction() == null && event.getState().equals(State.PUBLISHED)) {
@@ -154,22 +152,6 @@ public class EventServiceImpl implements EventService {
     public List<EventDtoOutput> getAllByParamForAdmin(List<Long> users, List<String> states,
                                                       List<Long> categories, LocalDateTime rangeStart,
                                                       LocalDateTime rangeEnd, Integer from, Integer size) {
-        if (users == null) {
-            users = new ArrayList<>(userService.getAll().stream().collect(groupingBy(User::getId)).keySet());
-        }
-        List<State> statesNew = new ArrayList<>();
-        if (states == null || states.isEmpty()) {
-            statesNew.add(State.PUBLISHED);
-            statesNew.add(State.PENDING);
-            statesNew.add(State.CANCELED);
-        } else {
-            for (String state : states) {
-                statesNew.add(State.valueOf(state));
-            }
-        }
-        if (categories == null) {
-            categories = getIdCategories();
-        }
         if (rangeStart == null) {
             rangeStart = LocalDateTime.now().withNano(0);
         }
@@ -180,14 +162,29 @@ public class EventServiceImpl implements EventService {
         JPAQuery<Event> query = new JPAQuery<>(entityManager);
         QEvent qEvent = QEvent.event;
         List<EventDtoOutput> eventDtoOutputList = new ArrayList<>();
-        List<Event> events = query.from(qEvent)
-                .where(qEvent.user.id.in(users)
-                        .and(qEvent.state.in(statesNew))
-                        .and(qEvent.category.id.in(categories))
-                        .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                        .and(qEvent.id.gt(from)))
-                .limit(size)
-                .fetch();
+        List<Event> events;
+        if (states != null) {
+            List<State> statesNew = new ArrayList<>();
+            for (String state: states) {
+                statesNew.add(State.valueOf(state));
+            }
+            events = query.from(qEvent)
+                    .where(qEvent.user.id.in(users)
+                            .and(qEvent.state.in(statesNew))
+                            .and(qEvent.category.id.in(categories))
+                            .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                            .and(qEvent.id.gt(from)))
+                    .limit(size)
+                    .fetch();
+        } else {
+            events = query.from(qEvent)
+                    .where(qEvent.user.id.in(users)
+                            .and(qEvent.category.id.in(categories))
+                            .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                            .and(qEvent.id.gt(from)))
+                    .limit(size)
+                    .fetch();
+        }
         Map<Event, Long> confirmedRequests = getCountConfirmedRequestsForEvent(events);
         List<String> uris = new ArrayList<>();
         for (Event event : events) {
@@ -228,9 +225,6 @@ public class EventServiceImpl implements EventService {
                                                             LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                             Boolean onlyAvailable, Sort sort,
                                                             Integer from, Integer size, HttpServletRequest request) {
-        if (categories == null) {
-            categories = getIdCategories();
-        }
         if (rangeStart == null) {
             rangeStart = LocalDateTime.now().withNano(0);
         }
@@ -338,11 +332,6 @@ public class EventServiceImpl implements EventService {
     private Map<String, Long> getView(List<String> uris) {
         return client.getStats(LocalDateTime.now().withNano(0).minusYears(10),
                 LocalDateTime.now().withNano(0).plusYears(10), uris, false);
-    }
-
-    private List<Long> getIdCategories() {
-        return new ArrayList<>(categoryService.getAll().stream()
-                .collect(groupingBy(Category::getId)).keySet());
     }
 
     private Event updateEvent(Event event, Event newEvent) {

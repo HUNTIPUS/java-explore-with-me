@@ -26,5 +26,10 @@ public class EventDtoForAdminInput {
     Integer participantLimit;
     Boolean paid;
     Boolean requestModeration;
-    String stateAction;
+    StateAction stateAction;
+
+    public enum StateAction {
+        PUBLISH_EVENT,
+        REJECT_EVENT
+    }
 }

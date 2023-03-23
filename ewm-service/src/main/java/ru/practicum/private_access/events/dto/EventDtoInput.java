@@ -4,9 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.private_access.events.location.dto.LocationDto;
-import ru.practicum.private_access.events.state.State;
 import ru.practicum.valid.Create;
+import ru.practicum.valid.Update;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
@@ -21,16 +22,17 @@ import java.time.LocalDateTime;
 public class EventDtoInput {
     @NotNull(groups = {Create.class})
     Long category;
+    @Valid
     @NotNull(groups = {Create.class})
     LocationDto location;
     @NotBlank(groups = {Create.class})
-    @Size(max = 2000, groups = {Create.class})
+    @Size(max = 2000, groups = {Create.class, Update.class})
     String annotation;
     @NotBlank(groups = {Create.class})
-    @Size(max = 120, groups = {Create.class})
+    @Size(max = 120, groups = {Create.class, Update.class})
     String title;
     @NotBlank(groups = {Create.class})
-    @Size(max = 7000, groups = {Create.class})
+    @Size(max = 7000, groups = {Create.class, Update.class})
     String description;
     @NotNull(groups = {Create.class})
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -41,5 +43,4 @@ public class EventDtoInput {
     Boolean paid;
     @NotNull(groups = {Create.class})
     Boolean requestModeration;
-    State state = State.PENDING;
 }

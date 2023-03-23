@@ -42,7 +42,6 @@ public class RequestDaoImpl implements RequestDao {
             map.put("status", status);
             batchOfInputs[count++] = map;
         }
-        System.out.println(batchOfInputs);
         jdbcTemplate.batchUpdate(sql, batchOfInputs);
 
         SqlParameterSource parameters = new MapSqlParameterSource()

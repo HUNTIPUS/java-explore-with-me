@@ -14,6 +14,7 @@ import ru.practicum.admin_access.compilations.model.Compilation;
 import ru.practicum.admin_access.compilations.repository.CompilationRepository;
 import ru.practicum.admin_access.compilations.service.dal.CompilationService;
 import ru.practicum.exceptions.exception.ObjectExistenceException;
+import ru.practicum.private_access.events.dto.EventShortDtoOutput;
 import ru.practicum.private_access.events.model.Event;
 import ru.practicum.private_access.events.repository.EventRepository;
 import ru.practicum.private_access.events.service.dal.EventService;
@@ -44,11 +45,13 @@ public class CompilationServiceImpl implements CompilationService {
         if (compilationDtoInput.getEvents() != null && !compilationDtoInput.getEvents().isEmpty()) {
             List<Event> events = eventRepository.findAllById(compilationDtoInput.getEvents());
             CompilationEvent compilationEvent = new CompilationEvent();
+            List<CompilationEvent> compilationEventList = new ArrayList<>();
             compilationEvent.setCompilation(compilation);
             for (Event event : events) {
                 compilationEvent.setEvent(event);
-                compilationEventRepository.save(compilationEvent);
+                compilationEventList.add(compilationEvent);
             }
+            compilationEventRepository.saveAll(compilationEventList);
             return appendEventToCompilation(compilationDtoOutput, events);
         }
         return appendEventToCompilation(compilationDtoOutput, List.of());
@@ -67,6 +70,7 @@ public class CompilationServiceImpl implements CompilationService {
             List<CompilationEvent> oldCompilationEvent = compilationEventRepository.getByCompilation(id);
             List<Event> newEvents = eventRepository.findAllById(compilationDtoInput.getEvents());
             CompilationEvent compilationEventNew = new CompilationEvent();
+            List<CompilationEvent> compilationEventList = new ArrayList<>();
             compilationEventNew.setCompilation(compilation);
             if (!oldCompilationEvent.isEmpty()) {
                 for (CompilationEvent compilationEvent : oldCompilationEvent) {
@@ -75,13 +79,15 @@ public class CompilationServiceImpl implements CompilationService {
                 }
                 for (Event event : newEvents) {
                     compilationEventNew.setEvent(event);
-                    compilationEventRepository.save(compilationEventNew);
+                    compilationEventList.add(compilationEventNew);
                 }
+                compilationEventRepository.saveAll(compilationEventList);
             } else {
                 for (Event event : newEvents) {
                     compilationEventNew.setEvent(event);
-                    compilationEventRepository.save(compilationEventNew);
+                    compilationEventList.add(compilationEventNew);
                 }
+                compilationEventRepository.saveAll(compilationEventList);
             }
             appendEventToCompilation(compilationDtoOutput, newEvents);
         }
@@ -117,11 +123,17 @@ public class CompilationServiceImpl implements CompilationService {
         List<CompilationDtoOutput> compilationDtoOutputList = new ArrayList<>();
         Map<Compilation, List<CompilationEvent>> compilationEvents;
         List<Compilation> compilations;
+        List<Long> eventIds;
         if (pinned != null) {
             compilationEvents = compilationEventRepository.getAllByCompilationPinned(pinned,
                             PageRequest.of(from > 0 ? from / size : 0, size))
                     .stream()
                     .collect(groupingBy(CompilationEvent::getCompilation));
+            eventIds = compilationEventRepository.getAllByCompilationPinned(pinned,
+                            PageRequest.of(from > 0 ? from / size : 0, size))
+                    .stream()
+                    .map(e -> e.getEvent().getId())
+                    .collect(toList());
             if (new ArrayList<>(compilationEvents.keySet()).isEmpty()) {
                 compilations = compilationRepository.getCompilationByParamWithPinned(pinned,
                         PageRequest.of(from > 0 ? from / size : 0, size));
@@ -135,6 +147,11 @@ public class CompilationServiceImpl implements CompilationService {
                             Sort.by("id")))
                     .stream()
                     .collect(groupingBy(CompilationEvent::getCompilation));
+            eventIds = compilationEventRepository.findAll(PageRequest.of(from > 0 ? from / size : 0, size,
+                            Sort.by("id")))
+                    .stream()
+                    .map(e -> e.getEvent().getId())
+                    .collect(toList());
             if (new ArrayList<>(compilationEvents.keySet()).isEmpty()) {
                 compilations = compilationRepository.findAll(PageRequest.of(from > 0 ? from / size : 0, size)).toList();
             } else {
@@ -143,16 +160,27 @@ public class CompilationServiceImpl implements CompilationService {
                         PageRequest.of(from > 0 ? from / size : 0, size));
             }
         }
+
         for (Compilation compilation : compilations) {
-            compilationDtoOutputList.add(appendEventToCompilation(CompilationMapper.toCompilationDtoOutput(compilation),
-                    List.of()));
+            CompilationDtoOutput compilationDtoOutput = CompilationMapper.toCompilationDtoOutput(compilation);
+            compilationDtoOutput.setEvents(List.of());
+            compilationDtoOutputList.add(compilationDtoOutput);
         }
+        List<EventShortDtoOutput> eventShortDtoOutputList = eventService.getEventShortDtoOutput(eventRepository
+                .findAllById(eventIds));
         for (Compilation compilation : compilationEvents.keySet()) {
-            compilationDtoOutputList.add(appendEventToCompilation(CompilationMapper.toCompilationDtoOutput(compilation),
-                    compilationEvents.get(compilation)
-                            .stream()
-                            .map(CompilationEvent::getEvent)
-                            .collect(toList())));
+            List<Long> ids = compilationEvents.get(compilation)
+                    .stream()
+                    .map(e -> e.getEvent().getId())
+                    .collect(toList());
+            List<EventShortDtoOutput> eventShortDtoOutputListByCompilation = eventShortDtoOutputList
+                    .stream()
+                    .filter(e -> ids.contains(e.getId()))
+                    .collect(toList());
+
+            CompilationDtoOutput compilationDtoOutput = CompilationMapper.toCompilationDtoOutput(compilation);
+            compilationDtoOutput.setEvents(eventShortDtoOutputListByCompilation);
+            compilationDtoOutputList.add(compilationDtoOutput);
         }
         return compilationDtoOutputList;
     }
