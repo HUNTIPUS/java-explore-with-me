@@ -11,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EventDtoInputUpdate extends EventDtoInput {
     private StateAction stateAction;
+
     public enum StateAction {
         SEND_TO_REVIEW,
         CANCEL_REVIEW
