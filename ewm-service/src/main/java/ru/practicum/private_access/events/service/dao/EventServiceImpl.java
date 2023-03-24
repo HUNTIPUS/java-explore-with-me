@@ -235,11 +235,12 @@ public class EventServiceImpl implements EventService {
         JPAQuery<Event> query = new JPAQuery<>(entityManager);
         QEvent qEvent = QEvent.event;
         QRequest qRequest = QRequest.request;
-        List<Event> events;
+
+        JPAQuery<Event> eventsJpa;
         if (text == null || text.isBlank()) {
             if (onlyAvailable) {
                 if (categories != null) {
-                    events = query.from(qEvent)
+                    eventsJpa = query.from(qEvent)
                             .where(qEvent.category.id.in(categories)
                                     .and(qEvent.paid.eq(paid))
                                     .and(qEvent.eventDate.between(rangeStart, rangeEnd))
@@ -248,12 +249,9 @@ public class EventServiceImpl implements EventService {
                                     .and(qEvent.participantLimit.gt(
                                             query.select(qRequest.count()).from(qRequest)
                                                     .where(qRequest.event.id.eq(qEvent.id))
-                                    )))
-                            .orderBy(qEvent.eventDate.desc())
-                            .limit(size)
-                            .fetch();
+                                    )));
                 } else {
-                    events = query.from(qEvent)
+                    eventsJpa = query.from(qEvent)
                             .where(qEvent.paid.eq(paid)
                                     .and(qEvent.eventDate.between(rangeStart, rangeEnd))
                                     .and(qEvent.id.goe(from))
@@ -261,37 +259,28 @@ public class EventServiceImpl implements EventService {
                                     .and(qEvent.participantLimit.gt(
                                             query.select(qRequest.count()).from(qRequest)
                                                     .where(qRequest.event.id.eq(qEvent.id))
-                                    )))
-                            .orderBy(qEvent.eventDate.desc())
-                            .limit(size)
-                            .fetch();
+                                    )));
                 }
             } else {
                 if (categories != null) {
-                    events = query.from(qEvent)
+                    eventsJpa = query.from(qEvent)
                             .where(qEvent.category.id.in(categories)
                                     .and(qEvent.paid.eq(paid))
                                     .and(qEvent.eventDate.between(rangeStart, rangeEnd))
                                     .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED)))
-                            .orderBy(qEvent.eventDate.desc())
-                            .limit(size)
-                            .fetch();
+                                    .and(qEvent.state.eq(State.PUBLISHED)));
                 } else {
-                    events = query.from(qEvent)
+                    eventsJpa = query.from(qEvent)
                             .where(qEvent.paid.eq(paid)
                                     .and(qEvent.eventDate.between(rangeStart, rangeEnd))
                                     .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED)))
-                            .orderBy(qEvent.eventDate.desc())
-                            .limit(size)
-                            .fetch();
+                                    .and(qEvent.state.eq(State.PUBLISHED)));
                 }
             }
         } else {
             if (onlyAvailable) {
                 if (categories != null) {
-                    events = query.from(qEvent)
+                    eventsJpa = query.from(qEvent)
                             .where(qEvent.category.id.in(categories)
                                     .and(qEvent.annotation.contains(text)
                                             .or(qEvent.title.contains(text))
@@ -303,12 +292,9 @@ public class EventServiceImpl implements EventService {
                                     .and(qEvent.participantLimit.gt(
                                             query.select(qRequest.count()).from(qRequest)
                                                     .where(qRequest.event.id.eq(qEvent.id))
-                                    )))
-                            .orderBy(qEvent.eventDate.desc())
-                            .limit(size)
-                            .fetch();
+                                    )));
                 } else {
-                    events = query.from(qEvent)
+                    eventsJpa = query.from(qEvent)
                             .where(qEvent.annotation.contains(text)
                                     .or(qEvent.title.contains(text))
                                     .or(qEvent.description.contains(text))
@@ -319,14 +305,11 @@ public class EventServiceImpl implements EventService {
                                     .and(qEvent.participantLimit.gt(
                                             query.select(qRequest.count()).from(qRequest)
                                                     .where(qRequest.event.id.eq(qEvent.id))
-                                    )))
-                            .orderBy(qEvent.eventDate.desc())
-                            .limit(size)
-                            .fetch();
+                                    )));
                 }
             } else {
                 if (categories != null) {
-                    events = query.from(qEvent)
+                    eventsJpa = query.from(qEvent)
                             .where(qEvent.category.id.in(categories)
                                     .and(qEvent.annotation.contains(text)
                                             .or(qEvent.title.contains(text))
@@ -334,25 +317,22 @@ public class EventServiceImpl implements EventService {
                                     .and(qEvent.paid.eq(paid))
                                     .and(qEvent.eventDate.between(rangeStart, rangeEnd))
                                     .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED)))
-                            .orderBy(qEvent.eventDate.desc())
-                            .limit(size)
-                            .fetch();
+                                    .and(qEvent.state.eq(State.PUBLISHED)));
                 } else {
-                    events = query.from(qEvent)
+                    eventsJpa = query.from(qEvent)
                             .where(qEvent.annotation.contains(text)
                                     .or(qEvent.title.contains(text))
                                     .or(qEvent.description.contains(text))
                                     .and(qEvent.paid.eq(paid))
                                     .and(qEvent.eventDate.between(rangeStart, rangeEnd))
                                     .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED)))
-                            .orderBy(qEvent.eventDate.desc())
-                            .limit(size)
-                            .fetch();
+                                    .and(qEvent.state.eq(State.PUBLISHED)));
                 }
             }
         }
+        List<Event> events = eventsJpa.orderBy(qEvent.eventDate.desc())
+                .limit(size)
+                .fetch();
         for (Event event : events) {
             String uri = String.format("/events/%s", event.getId());
             client.hit(new StatsDtoInput(APP, uri, request.getRemoteAddr(),

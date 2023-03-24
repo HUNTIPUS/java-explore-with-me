@@ -37,7 +37,8 @@ public class EventDtoInput {
     @NotNull(groups = {Create.class})
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
-    @PositiveOrZero(groups = {Create.class})
+    @PositiveOrZero(groups = {Create.class, Update.class})
+    @NotNull(groups = {Create.class})
     Integer participantLimit;
     @NotNull(groups = {Create.class})
     Boolean paid;
