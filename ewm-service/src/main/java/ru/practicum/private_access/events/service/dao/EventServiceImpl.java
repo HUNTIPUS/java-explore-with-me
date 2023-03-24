@@ -152,39 +152,74 @@ public class EventServiceImpl implements EventService {
     public List<EventDtoOutput> getAllByParamForAdmin(List<Long> users, List<String> states,
                                                       List<Long> categories, LocalDateTime rangeStart,
                                                       LocalDateTime rangeEnd, Integer from, Integer size) {
-        if (rangeStart == null) {
-            rangeStart = LocalDateTime.now().withNano(0);
-        }
-        if (rangeEnd == null) {
-            rangeEnd = LocalDateTime.now().withNano(0).plusYears(10);
-        }
 
         JPAQuery<Event> query = new JPAQuery<>(entityManager);
         QEvent qEvent = QEvent.event;
         List<EventDtoOutput> eventDtoOutputList = new ArrayList<>();
-        List<Event> events;
+        JPAQuery<Event> eventsJpa;
         if (states != null) {
             List<State> statesNew = new ArrayList<>();
             for (String state : states) {
                 statesNew.add(State.valueOf(state));
             }
-            events = query.from(qEvent)
-                    .where(qEvent.user.id.in(users)
-                            .and(qEvent.state.in(statesNew))
-                            .and(qEvent.category.id.in(categories))
-                            .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                            .and(qEvent.id.gt(from)))
-                    .limit(size)
-                    .fetch();
+            if (users != null && !users.isEmpty()) {
+                if (rangeStart != null && rangeEnd != null) {
+                    eventsJpa = query.from(qEvent)
+                            .where(qEvent.user.id.in(users)
+                                    .and(qEvent.state.in(statesNew))
+                                    .and(qEvent.category.id.in(categories))
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.gt(from)));
+                } else {
+                    eventsJpa = query.from(qEvent)
+                            .where(qEvent.user.id.in(users)
+                                    .and(qEvent.state.in(statesNew))
+                                    .and(qEvent.category.id.in(categories))
+                                    .and(qEvent.id.gt(from)));
+                }
+            } else {
+                if (rangeStart != null && rangeEnd != null) {
+                    eventsJpa = query.from(qEvent)
+                            .where(qEvent.state.in(statesNew)
+                                    .and(qEvent.category.id.in(categories))
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.gt(from)));
+                } else {
+                    eventsJpa = query.from(qEvent)
+                            .where(qEvent.state.in(statesNew)
+                                    .and(qEvent.category.id.in(categories))
+                                    .and(qEvent.id.gt(from)));
+                }
+            }
         } else {
-            events = query.from(qEvent)
-                    .where(qEvent.user.id.in(users)
-                            .and(qEvent.category.id.in(categories))
-                            .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                            .and(qEvent.id.gt(from)))
-                    .limit(size)
-                    .fetch();
+            if (users != null && !users.isEmpty()) {
+                if (rangeStart != null && rangeEnd != null) {
+                    eventsJpa = query.from(qEvent)
+                            .where(qEvent.user.id.in(users)
+                                    .and(qEvent.category.id.in(categories))
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.gt(from)));
+                } else {
+                    eventsJpa = query.from(qEvent)
+                            .where(qEvent.user.id.in(users)
+                                    .and(qEvent.category.id.in(categories))
+                                    .and(qEvent.id.gt(from)));
+                }
+            } else {
+                if (rangeStart != null && rangeEnd != null) {
+                    eventsJpa = query.from(qEvent)
+                            .where(qEvent.category.id.in(categories)
+                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
+                                    .and(qEvent.id.gt(from)));
+                } else {
+                    eventsJpa = query.from(qEvent)
+                            .where(qEvent.category.id.in(categories)
+                                    .and(qEvent.id.gt(from)));
+                }
+            }
+
         }
+        List<Event> events = eventsJpa.limit(size).fetch();
         Map<Event, Long> confirmedRequests = getCountConfirmedRequestsForEvent(events);
         List<String> uris = new ArrayList<>();
         for (Event event : events) {
