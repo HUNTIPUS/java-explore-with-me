@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventDtoInput {
+
     @NotNull(groups = {Create.class})
     Long category;
     @Valid
