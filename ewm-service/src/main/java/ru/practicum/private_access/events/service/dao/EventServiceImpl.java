@@ -1,5 +1,6 @@
 package ru.practicum.private_access.events.service.dao;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -155,77 +156,28 @@ public class EventServiceImpl implements EventService {
 
         JPAQuery<Event> query = new JPAQuery<>(entityManager);
         QEvent qEvent = QEvent.event;
-        List<EventDtoOutput> eventDtoOutputList = new ArrayList<>();
-        JPAQuery<Event> eventsJpa;
-        if (states != null) {
-            List<State> statesNew = new ArrayList<>();
-            for (String state : states) {
-                statesNew.add(State.valueOf(state));
-            }
-            if (users != null && !users.isEmpty()) {
-                if (rangeStart != null && rangeEnd != null) {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.user.id.in(users)
-                                    .and(qEvent.state.in(statesNew))
-                                    .and(qEvent.category.id.in(categories))
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.gt(from)));
-                } else {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.user.id.in(users)
-                                    .and(qEvent.state.in(statesNew))
-                                    .and(qEvent.category.id.in(categories))
-                                    .and(qEvent.id.gt(from)));
-                }
-            } else {
-                if (rangeStart != null && rangeEnd != null) {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.state.in(statesNew)
-                                    .and(qEvent.category.id.in(categories))
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.gt(from)));
-                } else {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.state.in(statesNew)
-                                    .and(qEvent.category.id.in(categories))
-                                    .and(qEvent.id.gt(from)));
-                }
-            }
-        } else {
-            if (users != null && !users.isEmpty()) {
-                if (rangeStart != null && rangeEnd != null) {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.user.id.in(users)
-                                    .and(qEvent.category.id.in(categories))
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.gt(from)));
-                } else {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.user.id.in(users)
-                                    .and(qEvent.category.id.in(categories))
-                                    .and(qEvent.id.gt(from)));
-                }
-            } else {
-                if (rangeStart != null && rangeEnd != null) {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.category.id.in(categories)
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.gt(from)));
-                } else {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.category.id.in(categories)
-                                    .and(qEvent.id.gt(from)));
-                }
-            }
+        List<Event> events = query.from(qEvent)
+                .where(
+                        isUsersNotEmpty(users),
+                        isCategoriesNotEmpty(categories),
+                        isRangeStartNotNull(rangeStart),
+                        isRangeEndNotNull(rangeEnd),
+                        isStatusNotNull(states),
+                        qEvent.id.gt(from)
+                )
+                .limit(size)
+                .fetch();
 
-        }
-        List<Event> events = eventsJpa.limit(size).fetch();
         Map<Event, Long> confirmedRequests = getCountConfirmedRequestsForEvent(events);
         List<String> uris = new ArrayList<>();
+
         for (Event event : events) {
             uris.add(String.format("/events/%s", event.getId()));
         }
+
         Map<String, Long> views = getView(uris);
+        List<EventDtoOutput> eventDtoOutputList = new ArrayList<>();
+
         for (Event event : events) {
             eventDtoOutputList.add(appendViewsForLongDto(appendCountConfirmedRequestsToLongDto(EventMapper
                     .toEventDtoOutput(event), Objects.requireNonNullElse(confirmedRequests.get(event),
@@ -269,105 +221,22 @@ public class EventServiceImpl implements EventService {
 
         JPAQuery<Event> query = new JPAQuery<>(entityManager);
         QEvent qEvent = QEvent.event;
-        QRequest qRequest = QRequest.request;
 
-        JPAQuery<Event> eventsJpa;
-        if (text == null || text.isBlank()) {
-            if (onlyAvailable) {
-                if (categories != null) {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.category.id.in(categories)
-                                    .and(qEvent.paid.eq(paid))
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED))
-                                    .and(qEvent.participantLimit.gt(
-                                            query.select(qRequest.count()).from(qRequest)
-                                                    .where(qRequest.event.id.eq(qEvent.id))
-                                    )));
-                } else {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.paid.eq(paid)
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED))
-                                    .and(qEvent.participantLimit.gt(
-                                            query.select(qRequest.count()).from(qRequest)
-                                                    .where(qRequest.event.id.eq(qEvent.id))
-                                    )));
-                }
-            } else {
-                if (categories != null) {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.category.id.in(categories)
-                                    .and(qEvent.paid.eq(paid))
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED)));
-                } else {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.paid.eq(paid)
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED)));
-                }
-            }
-        } else {
-            if (onlyAvailable) {
-                if (categories != null) {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.category.id.in(categories)
-                                    .and(qEvent.annotation.contains(text)
-                                            .or(qEvent.title.contains(text))
-                                            .or(qEvent.description.contains(text)))
-                                    .and(qEvent.paid.eq(paid))
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED))
-                                    .and(qEvent.participantLimit.gt(
-                                            query.select(qRequest.count()).from(qRequest)
-                                                    .where(qRequest.event.id.eq(qEvent.id))
-                                    )));
-                } else {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.annotation.contains(text)
-                                    .or(qEvent.title.contains(text))
-                                    .or(qEvent.description.contains(text))
-                                    .and(qEvent.paid.eq(paid))
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED))
-                                    .and(qEvent.participantLimit.gt(
-                                            query.select(qRequest.count()).from(qRequest)
-                                                    .where(qRequest.event.id.eq(qEvent.id))
-                                    )));
-                }
-            } else {
-                if (categories != null) {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.category.id.in(categories)
-                                    .and(qEvent.annotation.contains(text)
-                                            .or(qEvent.title.contains(text))
-                                            .or(qEvent.description.contains(text)))
-                                    .and(qEvent.paid.eq(paid))
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED)));
-                } else {
-                    eventsJpa = query.from(qEvent)
-                            .where(qEvent.annotation.contains(text)
-                                    .or(qEvent.title.contains(text))
-                                    .or(qEvent.description.contains(text))
-                                    .and(qEvent.paid.eq(paid))
-                                    .and(qEvent.eventDate.between(rangeStart, rangeEnd))
-                                    .and(qEvent.id.goe(from))
-                                    .and(qEvent.state.eq(State.PUBLISHED)));
-                }
-            }
-        }
-        List<Event> events = eventsJpa.orderBy(qEvent.eventDate.desc())
+        List<Event> events = query.from(qEvent)
+                .where(
+                        isTextNotBlank(text),
+                        qEvent.state.eq(State.PUBLISHED),
+                        isCategoriesNotEmpty(categories),
+                        qEvent.paid.eq(paid),
+                        isRangeStartNotNull(rangeStart),
+                        isRangeEndNotNull(rangeEnd),
+                        isOnlyAvailableTrue(onlyAvailable, query),
+                        qEvent.id.goe(from)
+                )
+                .orderBy(qEvent.eventDate.desc())
                 .limit(size)
                 .fetch();
+
         for (Event event : events) {
             String uri = String.format("/events/%s", event.getId());
             client.hit(new StatsDtoInput(APP, uri, request.getRemoteAddr(),
@@ -400,6 +269,46 @@ public class EventServiceImpl implements EventService {
                     Objects.requireNonNullElse(views.get(String.format("/events/%s", event.getId())), 0L)));
         }
         return eventShortDtoOutputList;
+    }
+
+    private BooleanExpression isUsersNotEmpty(List<Long> usersIds) {
+        return usersIds != null ? QEvent.event.user.id.in(usersIds) : null;
+    }
+
+    private BooleanExpression isCategoriesNotEmpty(List<Long> categoriesIds) {
+        return categoriesIds != null ? QEvent.event.category.id.in(categoriesIds) : null;
+    }
+
+    private BooleanExpression isRangeStartNotNull(LocalDateTime rangeStart) {
+        return rangeStart != null ? QEvent.event.eventDate.goe(rangeStart) : null;
+    }
+
+    private BooleanExpression isRangeEndNotNull(LocalDateTime rangeEnd) {
+        return rangeEnd != null ? QEvent.event.eventDate.loe(rangeEnd) : null;
+    }
+
+    private BooleanExpression isStatusNotNull(List<String> states) {
+        if (states != null) {
+            List<State> statesNew = new ArrayList<>();
+            for (String state : states) {
+                statesNew.add(State.valueOf(state));
+            }
+            return QEvent.event.state.in(statesNew);
+        } else {
+            return null;
+        }
+    }
+
+    private BooleanExpression isTextNotBlank(String text) {
+        return text != null && !text.isBlank() ? QEvent.event.annotation.contains(text)
+                .or(QEvent.event.title.contains(text))
+                .or(QEvent.event.description.contains(text)) : null;
+    }
+
+    private BooleanExpression isOnlyAvailableTrue(Boolean onlyAvailable, JPAQuery<Event> query) {
+        return onlyAvailable.equals(true) ? QEvent.event.participantLimit.gt(
+                query.select(QRequest.request.count()).from(QRequest.request)
+                        .where(QRequest.request.event.id.eq(QEvent.event.id))) : null;
     }
 
     private Map<String, Long> getView(List<String> uris) {
