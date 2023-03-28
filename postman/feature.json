@@ -23,7 +23,7 @@
               "        const user2 = await api.addUser(rnd.getUser());\r",
               "        const category = await api.addCategory(rnd.getCategory());\r",
               "        const event = await api.addEvent(user1.id, rnd.getEvent(category.id));\r",
-              "        comment = rnd.getComment();\r",
+              "        comment = rnd.getComment(user2.id);\r",
               "    } catch(err) {\r",
               "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
               "    }\r",
@@ -66,7 +66,7 @@
               "const source = JSON.parse(pm.request.body.raw);\r",
               "const target = pm.response.json();\r",
               "\r",
-              "pm.test(\"Комментарий должен содержать поля: id, name, email\", function () {\r",
+              "pm.test(\"Комментарий должен содержать поля: id, creator, description\", function () {\r",
               "pm.expect(target).to.have.property('id');\r",
               "pm.expect(target).to.have.property('creator');\r",
               "pm.expect(target).to.have.property('description');\r",
@@ -203,7 +203,7 @@
               "        const user2 = await api.addUser(rnd.getUser());\r",
               "        const category = await api.addCategory(rnd.getCategory());\r",
               "        const event = await api.addEvent(user1.id, rnd.getEvent(category.id));\r",
-              "        comment = await api.addComment(user2.id, event.id, rnd.getComment());\r",
+              "        comment = await api.addComment(user2.id, event.id, rnd.getComment(user2.id));\r",
               "        pm.collectionVariables.set(\"uid\", user1.id);\r",
               "        pm.collectionVariables.set(\"uid\", user2.id);\r",
               "        pm.collectionVariables.set(\"catid\", category.id);\r",
@@ -342,8 +342,8 @@
               "        const user2 = await api.addUser(rnd.getUser());\r",
               "        const category = await api.addCategory(rnd.getCategory());\r",
               "        const event = await api.addEvent(user1.id, rnd.getEvent(category.id));\r",
-              "        comment = await api.addComment(user1.id, event.id, rnd.getComment());\r",
-              "        comment1 = await api.addComment(user2.id, event.id, rnd.getComment());\r",
+              "        comment = await api.addComment(user1.id, event.id, rnd.getComment(user1.id));\r",
+              "        comment1 = await api.addComment(user2.id, event.id, rnd.getComment(user2.id));\r",
               "        pm.collectionVariables.set(\"comid\", comment.id);\r",
               "        pm.collectionVariables.set(\"response\", comment1);\r",
               "    pm.request.body.update({\r",
@@ -455,7 +455,7 @@
               "        const user = await api.addUser(rnd.getUser());\r",
               "        const category = await api.addCategory(rnd.getCategory());\r",
               "        const event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
-              "        const comment = await api.addComment(user.id, event.id, rnd.getComment());\r",
+              "        const comment = await api.addComment(user.id, event.id, rnd.getComment(user.id));\r",
               "        const findComment = await api.findComment(comment.id);\r",
               "        pm.collectionVariables.set(\"uid\", user.id);\r",
               "        pm.collectionVariables.set(\"catid\", category.id);\r",
@@ -574,7 +574,7 @@
               "        const user = await api.addUser(rnd.getUser());\r",
               "        const category = await api.addCategory(rnd.getCategory());\r",
               "        const event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
-              "        const comment = await api.addComment(user.id, event.id, rnd.getComment());\r",
+              "        const comment = await api.addComment(user.id, event.id, rnd.getComment(user.id));\r",
               "        const findComment = await api.findComment(comment.id);\r",
               "        pm.collectionVariables.set('response', findComment);\r",
               "    } catch(err) {\r",
@@ -794,7 +794,7 @@
               "        const user2 = await api.addUser(rnd.getUser());\r",
               "        const category = await api.addCategory(rnd.getCategory());\r",
               "        const event = await api.addEvent(user1.id, rnd.getEvent(category.id));\r",
-              "        comment = rnd.getComment();\r",
+              "        comment = rnd.getComment(user2.id);\r",
               "    } catch(err) {\r",
               "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
               "    }\r",
@@ -1130,10 +1130,10 @@
               "        pm.collectionVariables.set(\"uid\", user.id)\r",
               "        const category = await api.addCategory(rnd.getCategory());\r",
               "        const event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
-              "        const comment = await api.addComment(user.id, event.id, rnd.getComment());\r",
-              "        const comment1 = await api.addComment(user.id, event.id, rnd.getComment());\r",
-              "        const comment2 = await api.addComment(user.id, event.id, rnd.getComment());\r",
-              "        const comment3 = await api.addComment(user.id, event.id, rnd.getComment());\r",
+              "        const comment = await api.addComment(user.id, event.id, rnd.getComment(user.id));\r",
+              "        const comment1 = await api.addComment(user.id, event.id, rnd.getComment(user.id));\r",
+              "        const comment2 = await api.addComment(user.id, event.id, rnd.getComment(user.id));\r",
+              "        const comment3 = await api.addComment(user.id, event.id, rnd.getComment(user.id));\r",
               "    } catch(err) {\r",
               "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
               "    }\r",
@@ -1236,7 +1236,7 @@
               "        const user = await api.addUser(rnd.getUser());\r",
               "        const category = await api.addCategory(rnd.getCategory());\r",
               "        const event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
-              "        comment = await api.addComment(user.id, event.id, rnd.getComment());\r",
+              "        comment = await api.addComment(user.id, event.id, rnd.getComment(user.id));\r",
               "        pm.collectionVariables.set(\"comid\", comment.id)\r",
               "        pm.collectionVariables.set(\"response\", comment)\r",
               "    } catch(err) {\r",
@@ -1335,7 +1335,7 @@
               "        const user = await api.addUser(rnd.getUser());\r",
               "        const category = await api.addCategory(rnd.getCategory());\r",
               "        const event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
-              "        const comment = await api.addComment(user.id, event.id, rnd.getComment());\r",
+              "        const comment = await api.addComment(user.id, event.id, rnd.getComment(user.id));\r",
               "        const findComment = await api.findComment(comment.id);\r",
               "        pm.collectionVariables.set(\"uid\", user.id);\r",
               "        pm.collectionVariables.set(\"catid\", category.id);\r",
@@ -1582,7 +1582,7 @@
           "            participantLimit: pm.variables.replaceIn('{{$randomInt}}'),",
           "            requestModeration: pm.variables.replaceIn('{{$randomBoolean}}'),",
           "            title: pm.variables.replaceIn('{{$randomLoremSentence}}'),",
-          "            comments: pm.variables.replaceIn('{{$randomLongitude}}'),",
+          "            comments: pm.variables.replaceIn('{{$randomLongitude}}')",
           "        }",
           "    }",
           "",
@@ -1605,10 +1605,10 @@
           "        return m.format('YYYY-MM-DD HH:mm:ss');",
           "    }",
           "",
-          "    getComment() {",
+          "    getComment(userId) {",
           "        return {",
           "            creator: {",
-          "                id: pm.variables.replaceIn('{{$randomLongitude}}'),",
+          "                id: userId,",
           "                name: pm.variables.replaceIn('{{$randomFullName}}'),",
           "            },",
           "            description: pm.variables.replaceIn('{{$randomLoremParagraphs}}')",
@@ -1636,88 +1636,78 @@
     },
     {
       "key": "name",
-      "value": "",
-      "type": "string"
+      "value": ""
     },
     {
       "key": "usersCount",
       "value": "1",
-      "type": "string"
+      "type": "number"
     },
     {
       "key": "catid",
       "value": "1",
-      "type": "string"
+      "type": "number"
     },
     {
       "key": "request_body",
-      "value": "",
-      "type": "string"
+      "value": ""
     },
     {
       "key": "mail",
-      "value": "",
-      "type": "string"
+      "value": ""
     },
     {
       "key": "response",
-      "value": "",
-      "type": "string"
+      "value": ""
     },
     {
       "key": "uid",
       "value": "1",
-      "type": "string"
+      "type": "number"
     },
     {
       "key": "catname",
-      "value": "",
-      "type": "string"
+      "value": ""
     },
     {
       "key": "eid",
       "value": "1",
-      "type": "string"
+      "type": "number"
     },
     {
       "key": "compid",
       "value": "1",
-      "type": "string"
+      "type": "number"
     },
     {
       "key": "toCheck",
-      "value": "",
-      "type": "string"
+      "value": ""
     },
     {
       "key": "newDataToSet",
-      "value": "",
-      "type": "string"
+      "value": ""
     },
     {
       "key": "uid1",
-      "value": "",
-      "type": "string"
+      "value": ""
     },
     {
       "key": "reqid",
       "value": "1",
-      "type": "string"
+      "type": "number"
     },
     {
       "key": "catId",
-      "value": "",
-      "type": "string"
+      "value": ""
     },
     {
       "key": "comid",
       "value": "1",
-      "type": "string"
+      "type": "number"
     },
     {
       "key": "comId",
-      "value": "",
-      "type": "string"
+      "value": ""
     }
   ]
 }
