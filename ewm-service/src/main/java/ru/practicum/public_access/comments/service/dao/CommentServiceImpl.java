@@ -36,7 +36,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDtoOutput update(Long userId, Long eventId, Long id, CommentDtoInput commentDtoInput) {
         Comment comment = getById(id);
-        if(isCreator(comment, userId, eventId)) {
+        if (isCreator(comment, userId, eventId)) {
             if (comment.getCreated().plusDays(1).isAfter(LocalDateTime.now())) {
                 comment.setDescription(commentDtoInput.getDescription());
             } else {
