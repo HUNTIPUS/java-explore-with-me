@@ -6,9 +6,6 @@ import ru.practicum.admin_access.categories.dto.CategoryDto;
 import ru.practicum.admin_access.users.dto.UserShortDto;
 import ru.practicum.private_access.events.location.dto.LocationDto;
 import ru.practicum.private_access.events.state.State;
-import ru.practicum.public_access.comments.dto.CommentDtoOutput;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -16,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EventDtoOutput {
+public class EventDtoOutputForAdmin {
     Long id;
     CategoryDto category;
     LocationDto location;
@@ -33,5 +30,5 @@ public class EventDtoOutput {
     Integer confirmedRequests;
     State state;
     Long views;
-    List<CommentDtoOutput> comments;
+    Long comments;
 }

@@ -21,4 +21,5 @@ public class EventShortDtoOutput {
     UserShortDto initiator;
     Integer confirmedRequests;
     Long views;
+    Long comments;
 }

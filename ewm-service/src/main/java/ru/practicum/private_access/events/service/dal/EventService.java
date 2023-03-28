@@ -19,9 +19,9 @@ public interface EventService {
 
     Event getById(Long id);
 
-    EventDtoOutput updateByAdmin(Long id, EventDtoForAdminInput eventDto);
+    EventDtoOutputForAdmin updateByAdmin(Long id, EventDtoForAdminInput eventDto);
 
-    List<EventDtoOutput> getAllByParamForAdmin(List<Long> user, List<String> states, List<Long> categories,
+    List<EventDtoOutputForAdmin> getAllByParamForAdmin(List<Long> user, List<String> states, List<Long> categories,
                                                LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                Integer from, Integer size);
 

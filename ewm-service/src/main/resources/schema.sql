@@ -5,6 +5,7 @@ drop table if exists location cascade;
 drop table if exists events cascade;
 drop table if exists compilations_events cascade;
 drop table if exists requests cascade;
+drop table if exists comments cascade;
 
 create table if not exists users
 (
@@ -76,4 +77,15 @@ create table if not exists requests
     created timestamp,
     constraint fk_requests_to_users foreign key (id_user) references users (id),
     constraint fk_requests_to_events foreign key (id_event) references events (id)
+);
+
+create table if not exists comments
+(
+    id bigint generated always as identity primary key,
+    id_user bigint,
+    id_event bigint,
+    description varchar(7000),
+    created timestamp,
+    constraint fk_comments_to_users foreign key (id_user) references users (id),
+    constraint fk_comments_to_events foreign key (id_event) references events (id)
 );

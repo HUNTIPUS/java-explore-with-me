@@ -28,6 +28,9 @@ import ru.practicum.private_access.events.state.State;
 import ru.practicum.private_access.requests.model.QRequest;
 import ru.practicum.private_access.requests.model.Request;
 import ru.practicum.private_access.requests.repository.RequestRepository;
+import ru.practicum.public_access.comments.mapper.CommentMapper;
+import ru.practicum.public_access.comments.model.Comment;
+import ru.practicum.public_access.comments.model.QComment;
 import ru.practicum.public_access.events.sort.Sort;
 
 import javax.persistence.EntityManager;
@@ -113,11 +116,14 @@ public class EventServiceImpl implements EventService {
             List<String> uris = new ArrayList<>();
             uris.add(String.format("/events/%s", events.get(0).getId()));
             Map<String, Long> views = getView(uris);
-            return appendViewsForLongDto(appendCountConfirmedRequestsToLongDto(EventMapper
+            Map<Event, List<Comment>> comments = getCommentsForEvent(events, new JPAQuery<>(entityManager)
+            );
+            return appendCommentsToLongDto(appendViewsForLongDto(appendCountConfirmedRequestsToLongDto(EventMapper
                             .toEventDtoOutput(events.get(0)),
                     Objects.requireNonNullElse(getCountConfirmedRequestsForEvent(events).get(events.get(0)),
                             0L)), Objects.requireNonNullElse(views.get(String.format("/events/%s",
-                    events.get(0).getId())), 0L));
+                    events.get(0).getId())), 0L)), Objects.requireNonNullElse(comments.get(events.get(0)),
+                    List.of()));
         }
     }
 
@@ -130,7 +136,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventDtoOutput updateByAdmin(Long id, EventDtoForAdminInput eventDto) {
+    public EventDtoOutputForAdmin updateByAdmin(Long id, EventDtoForAdminInput eventDto) {
         Event event = getById(id);
         if (eventDto.getEventDate() != null && !eventDto.getEventDate().isAfter(LocalDateTime.now())) {
             throw new TimeException("Event date not in the future.");
@@ -142,17 +148,17 @@ public class EventServiceImpl implements EventService {
             throw new StatusException(String.format("event with id=%s has status %s", id, event.getState()));
         }
         if (eventDto.getCategory() == null) {
-            return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEventAdmin(eventDto,
+            return EventMapper.toEventDtoOutputForAdmin(updateEvent(event, EventMapper.toEventAdmin(eventDto,
                     null)));
         }
-        return EventMapper.toEventDtoOutput(updateEvent(event, EventMapper.toEventAdmin(eventDto,
+        return EventMapper.toEventDtoOutputForAdmin(updateEvent(event, EventMapper.toEventAdmin(eventDto,
                 categoryService.getById(eventDto.getCategory()))));
     }
 
     @Override
-    public List<EventDtoOutput> getAllByParamForAdmin(List<Long> users, List<String> states,
-                                                      List<Long> categories, LocalDateTime rangeStart,
-                                                      LocalDateTime rangeEnd, Integer from, Integer size) {
+    public List<EventDtoOutputForAdmin> getAllByParamForAdmin(List<Long> users, List<String> states,
+                                                              List<Long> categories, LocalDateTime rangeStart,
+                                                              LocalDateTime rangeEnd, Integer from, Integer size) {
 
         JPAQuery<Event> query = new JPAQuery<>(entityManager);
         QEvent qEvent = QEvent.event;
@@ -176,13 +182,14 @@ public class EventServiceImpl implements EventService {
         }
 
         Map<String, Long> views = getView(uris);
-        List<EventDtoOutput> eventDtoOutputList = new ArrayList<>();
-
+        List<EventDtoOutputForAdmin> eventDtoOutputList = new ArrayList<>();
+        Map<Event, Long> comments = getCountCommentsForEvent(events, new JPAQuery<>(entityManager));
         for (Event event : events) {
-            eventDtoOutputList.add(appendViewsForLongDto(appendCountConfirmedRequestsToLongDto(EventMapper
-                    .toEventDtoOutput(event), Objects.requireNonNullElse(confirmedRequests.get(event),
+            eventDtoOutputList.add(appendCountCommentsToAdminDto(
+                    appendViewsForAdminDto(appendCountConfirmedRequestsToAdminDto(EventMapper
+                    .toEventDtoOutputForAdmin(event), Objects.requireNonNullElse(confirmedRequests.get(event),
                     0L)), Objects.requireNonNullElse(views.get(String.format("/events/%s",
-                    event.getId())), 0L)));
+                    event.getId())), 0L)), Objects.requireNonNullElse(comments.get(event), 0L)));
         }
         return eventDtoOutputList;
     }
@@ -197,13 +204,16 @@ public class EventServiceImpl implements EventService {
                 LocalDateTime.now().withNano(0));
         client.hit(statsDtoInput);
         List<String> uris = List.of(uri);
-        List<Event> events = new ArrayList<>();
-        events.add(event);
+        List<Event> events = List.of(event);
         Map<String, Long> views = getView(uris);
+        Map<Event, List<Comment>> comments = getCommentsForEvent(events, new JPAQuery<>(entityManager)
+        );
         Long confirmedRequests = getCountConfirmedRequestsForEvent(events).get(event);
-        return appendViewsForLongDto(appendCountConfirmedRequestsToLongDto(EventMapper.toEventDtoOutput(event),
-                Objects.requireNonNullElse(confirmedRequests, 0L)), views.get(String.format("/events/%s",
-                event.getId())));
+        return appendCommentsToLongDto(appendViewsForLongDto(appendCountConfirmedRequestsToLongDto(EventMapper
+                        .toEventDtoOutput(event),
+                Objects.requireNonNullElse(confirmedRequests, 0L)), Objects.requireNonNullElse(
+                        views.get(String.format("/events/%s", event.getId())), 0L)),
+                Objects.requireNonNullElse(comments.get(event), List.of()));
     }
 
     @Transactional
@@ -262,11 +272,14 @@ public class EventServiceImpl implements EventService {
             uris.add(String.format("/events/%s", event.getId()));
         }
         Map<String, Long> views = getView(uris);
+        Map<Event, Long> comments = getCountCommentsForEvent(events, new JPAQuery<>(entityManager));
         for (Event event : events) {
-            eventShortDtoOutputList.add(appendViewsForShortDto(appendCountConfirmedRequestsToShortDto(EventMapper
-                                    .toEventShortDtoOutput(event),
-                            Objects.requireNonNullElse(confirmedRequests.get(event), 0L)),
-                    Objects.requireNonNullElse(views.get(String.format("/events/%s", event.getId())), 0L)));
+            eventShortDtoOutputList.add(appendCountCommentsToShortDto(
+                    appendViewsForShortDto(appendCountConfirmedRequestsToShortDto(EventMapper
+                                            .toEventShortDtoOutput(event),
+                                    Objects.requireNonNullElse(confirmedRequests.get(event), 0L)),
+                            Objects.requireNonNullElse(views.get(String.format("/events/%s", event.getId())), 0L)),
+                    Objects.requireNonNullElse(comments.get(event), 0L)));
         }
         return eventShortDtoOutputList;
     }
@@ -364,14 +377,31 @@ public class EventServiceImpl implements EventService {
                 .collect(groupingBy(Request::getEvent, counting()));
     }
 
-    private EventShortDtoOutput appendCountConfirmedRequestsToShortDto(EventShortDtoOutput eventDtoOutput,
-                                                                       Long confirmedRequests) {
-        eventDtoOutput.setConfirmedRequests(confirmedRequests.intValue());
+    private Map<Event, Long> getCountCommentsForEvent(List<Event> events, JPAQuery<Comment> query) {
+        return query.from(QComment.comment)
+                .where(QComment.comment.event.in(events))
+                .fetch()
+                .stream()
+                .collect(groupingBy(Comment::getEvent, counting()));
+    }
+
+    private Map<Event, List<Comment>> getCommentsForEvent(List<Event> events, JPAQuery<Comment> query) {
+        return query.from(QComment.comment)
+                .where(QComment.comment.event.in(events))
+                .orderBy(QComment.comment.created.desc())
+                .fetch()
+                .stream()
+                .collect(groupingBy(Comment::getEvent));
+    }
+
+    private EventShortDtoOutput appendCountCommentsToShortDto(EventShortDtoOutput eventDtoOutput,
+                                                              Long comments) {
+        eventDtoOutput.setComments(comments);
         return eventDtoOutput;
     }
 
-    private EventDtoOutput appendCountConfirmedRequestsToLongDto(EventDtoOutput eventDtoOutput,
-                                                                 Long confirmedRequests) {
+    private EventShortDtoOutput appendCountConfirmedRequestsToShortDto(EventShortDtoOutput eventDtoOutput,
+                                                                       Long confirmedRequests) {
         eventDtoOutput.setConfirmedRequests(confirmedRequests.intValue());
         return eventDtoOutput;
     }
@@ -381,7 +411,36 @@ public class EventServiceImpl implements EventService {
         return eventDtoOutput;
     }
 
+    private EventDtoOutput appendCommentsToLongDto(EventDtoOutput eventDtoOutput,
+                                                   List<Comment> comments) {
+        eventDtoOutput.setComments(CommentMapper.toCommentDtoOutputList(comments));
+        return eventDtoOutput;
+    }
+
+    private EventDtoOutput appendCountConfirmedRequestsToLongDto(EventDtoOutput eventDtoOutput,
+                                                                 Long confirmedRequests) {
+        eventDtoOutput.setConfirmedRequests(confirmedRequests.intValue());
+        return eventDtoOutput;
+    }
+
     private EventDtoOutput appendViewsForLongDto(EventDtoOutput eventDtoOutput, Long views) {
+        eventDtoOutput.setViews(views);
+        return eventDtoOutput;
+    }
+
+    private EventDtoOutputForAdmin appendCountCommentsToAdminDto(EventDtoOutputForAdmin eventDtoOutput,
+                                                              Long comments) {
+        eventDtoOutput.setComments(comments);
+        return eventDtoOutput;
+    }
+
+    private EventDtoOutputForAdmin appendCountConfirmedRequestsToAdminDto(EventDtoOutputForAdmin eventDtoOutput,
+                                                                          Long confirmedRequests) {
+        eventDtoOutput.setConfirmedRequests(confirmedRequests.intValue());
+        return eventDtoOutput;
+    }
+
+    private EventDtoOutputForAdmin appendViewsForAdminDto(EventDtoOutputForAdmin eventDtoOutput, Long views) {
         eventDtoOutput.setViews(views);
         return eventDtoOutput;
     }
