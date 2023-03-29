@@ -1,6 +1,7 @@
 # java-explore-with-me
 Template repository for ExploreWithMe project.
 
+
 PR: https://github.com/HUNTIPUS/java-explore-with-me/pull/3
 
 ### Простыми словами "ФИЧА":
