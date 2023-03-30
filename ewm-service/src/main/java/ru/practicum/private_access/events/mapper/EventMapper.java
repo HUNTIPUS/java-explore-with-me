@@ -104,6 +104,40 @@ public class EventMapper {
         return event;
     }
 
+    public static EventDtoOutputForAdmin toEventDtoOutputForAdmin(Event event) {
+        String eventDate = null;
+        String createdOn = null;
+        String publishedOn = null;
+        if (event.getEventDate() != null) {
+            eventDate = event.getEventDate().format(FORMAT);
+        }
+        if (event.getCreatedOn() != null) {
+            createdOn = event.getCreatedOn().format(FORMAT);
+        }
+        if (event.getPublishedOn() != null) {
+            publishedOn = event.getPublishedOn().format(FORMAT);
+        }
+        return EventDtoOutputForAdmin
+                .builder()
+                .annotation(event.getAnnotation())
+                .title(event.getTitle())
+                .id(event.getId())
+                .eventDate(eventDate)
+                .location(LocationMapper.toLocationDto(event.getLocation()))
+                .category(CategoryMapper.toCategoryDto(event.getCategory()))
+                .paid(event.getPaid())
+                .initiator(UserMapper.toUserShortDto(event.getUser()))
+                .createdOn(createdOn)
+                .description(event.getDescription())
+                .state(event.getState())
+                .publishedOn(publishedOn)
+                .participantLimit(event.getParticipantLimit())
+                .requestModeration(event.getRequestModeration())
+                .confirmedRequests(0)
+                .views(0L)
+                .build();
+    }
+
     public static EventShortDtoOutput toEventShortDtoOutput(Event event) {
         String eventDate = null;
         if (event.getEventDate() != null) {

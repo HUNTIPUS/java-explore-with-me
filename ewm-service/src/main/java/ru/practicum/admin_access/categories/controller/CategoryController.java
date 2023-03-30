@@ -39,7 +39,7 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable @Positive Long id) {
-        service.delete(id);
         log.info("delete category with id={}", id);
+        service.delete(id);
     }
 }
