@@ -213,7 +213,7 @@ public class EventServiceImpl implements EventService {
                         .toEventDtoOutput(event),
                 Objects.requireNonNullElse(confirmedRequests, 0L)), Objects.requireNonNullElse(
                         views.get(String.format("/events/%s", event.getId())), 0L)),
-                Objects.requireNonNullElse(comments.get(event), List.of()));
+                comments.getOrDefault(event, List.of()));
     }
 
     @Transactional

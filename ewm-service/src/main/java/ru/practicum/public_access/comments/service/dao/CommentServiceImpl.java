@@ -27,7 +27,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDtoOutput create(Long userId, Long eventId, CommentDtoInput commentDtoInput) {
         Comment comment = CommentMapper.toComment(commentDtoInput);
-        comment.setUser(userService.getById(userId));
+        comment.setAuthor(userService.getById(userId));
         comment.setEvent(eventService.getById(eventId));
         comment.setCreated(LocalDateTime.now());
         return CommentMapper.toCommentDto(repository.save(comment));
@@ -39,6 +39,7 @@ public class CommentServiceImpl implements CommentService {
         if (isCreator(comment, userId, eventId)) {
             if (comment.getCreated().plusDays(1).isAfter(LocalDateTime.now())) {
                 comment.setDescription(commentDtoInput.getDescription());
+                comment.setEditedOn(LocalDateTime.now());
             } else {
                 throw new TimeException(String.format("Comment with id=%s for more than 24 hours", id));
             }
@@ -67,8 +68,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private Boolean isCreator(Comment comment, Long userId, Long eventId) {
-        if (!comment.getUser().equals(userService.getById(userId))
-                || !comment.getEvent().equals(eventService.getById(eventId))) {
+        if (!comment.getAuthor().getId().equals(userId)
+                || !comment.getEvent().getId().equals(eventId)) {
             throw new InvalidRequestException(String.format("User with id=%s did not leave a comment with id=%s " +
                             "under the event with id=%s",
                     userId, comment.getId(), eventId));

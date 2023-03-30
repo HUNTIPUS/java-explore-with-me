@@ -2,13 +2,11 @@ package ru.practicum.private_access.requests.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import ru.practicum.private_access.events.model.Event;
 import ru.practicum.private_access.requests.model.Request;
 
 import java.util.List;
 
-@Repository
 public interface RequestRepository extends JpaRepository<Request, Long>, RequestDao {
 
     @Query("select r from Request r " +

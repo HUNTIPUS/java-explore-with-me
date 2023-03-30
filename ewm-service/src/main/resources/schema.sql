@@ -82,10 +82,11 @@ create table if not exists requests
 create table if not exists comments
 (
     id bigint generated always as identity primary key,
-    id_user bigint,
+    id_author bigint,
     id_event bigint,
     description varchar(7000),
     created timestamp,
-    constraint fk_comments_to_users foreign key (id_user) references users (id),
+    edited_on timestamp,
+    constraint fk_comments_to_users foreign key (id_author) references users (id),
     constraint fk_comments_to_events foreign key (id_event) references events (id)
 );

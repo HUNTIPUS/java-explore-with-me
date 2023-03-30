@@ -3,14 +3,12 @@ package ru.practicum.private_access.events.repository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import ru.practicum.admin_access.categories.model.Category;
 import ru.practicum.private_access.events.model.Event;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("select e from Event e where e.user.id = :userId")

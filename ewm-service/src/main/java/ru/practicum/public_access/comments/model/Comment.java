@@ -21,11 +21,13 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     @ManyToOne
-    @JoinColumn(name = "id_user", nullable = false)
-    User user;
+    @JoinColumn(name = "id_author", nullable = false)
+    User author;
     @ManyToOne
     @JoinColumn(name = "id_event", nullable = false)
     Event event;
     String description;
     LocalDateTime created;
+    @Column(name = "edited_on")
+    LocalDateTime editedOn;
 }

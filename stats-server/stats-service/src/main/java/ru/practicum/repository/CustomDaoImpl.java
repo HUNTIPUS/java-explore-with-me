@@ -40,7 +40,7 @@ public class CustomDaoImpl implements CustomDao {
             for (int i = 0; i < uris.size(); i++) {
                 newUri.append("'%");
                 newUri.append(uris.get(i));
-                newUri.append("%'");
+                newUri.append("'");
                 if (i != uris.size() - 1) {
                     newUri.append(" or uri like ");
                 }

@@ -11,6 +11,6 @@ import ru.practicum.admin_access.users.dto.UserShortDto;
 public class CommentDtoOutput {
 
     private Long id;
-    private UserShortDto creator;
+    private UserShortDto author;
     private String description;
 }
